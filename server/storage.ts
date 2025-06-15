@@ -69,10 +69,35 @@ export class MemStorage implements IStorage {
     const id = this.currentProductId++;
     const now = new Date();
     const product: Product = {
-      ...insertProduct,
       id,
       created_at: now,
       updated_at: now,
+      distributor_name: insertProduct.distributor_name,
+      brand_name: insertProduct.brand_name,
+      product_code: insertProduct.product_code,
+      product_secondary_code: insertProduct.product_secondary_code || null,
+      product_name: insertProduct.product_name,
+      description: insertProduct.description || null,
+      summary: insertProduct.summary || null,
+      shipping_class: insertProduct.shipping_class || null,
+      category_name: insertProduct.category_name,
+      product_availability: insertProduct.product_availability || 'In Stock',
+      status: insertProduct.status || 'Active',
+      online: insertProduct.online ?? true,
+      superceded_by: insertProduct.superceded_by || null,
+      ean: insertProduct.ean || null,
+      pack_size: insertProduct.pack_size || 1,
+      mwp: insertProduct.mwp || null,
+      trade: insertProduct.trade,
+      go: insertProduct.go || null,
+      rrp: insertProduct.rrp,
+      core_group: insertProduct.core_group || null,
+      tax_exmt: insertProduct.tax_exmt ?? false,
+      hyperlink: insertProduct.hyperlink || null,
+      web_title: insertProduct.web_title || null,
+      features_and_benefits_codes: insertProduct.features_and_benefits_codes || null,
+      badges_codes: insertProduct.badges_codes || null,
+      stock_unmanaged: insertProduct.stock_unmanaged ?? false,
     };
     this.products.set(id, product);
     return product;
@@ -117,6 +142,7 @@ export class MemStorage implements IStorage {
       ...insertSellIn,
       id,
       created_at: new Date(),
+      notes: insertSellIn.notes || null,
     };
     this.sellIns.set(id, sellIn);
     return sellIn;
@@ -142,6 +168,7 @@ export class MemStorage implements IStorage {
       ...insertSellThrough,
       id,
       created_at: new Date(),
+      customer_info: insertSellThrough.customer_info || null,
     };
     this.sellThroughs.set(id, sellThrough);
     return sellThrough;
