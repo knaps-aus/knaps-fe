@@ -248,6 +248,213 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                 </div>
               </div>
             </div>
+
+            {/* Additional Attributes - Conditionally Displayed */}
+            {(showAllAttributes || isEditing) && (
+              <div className="mt-8 pt-6 border-t border-gray-200">
+                <h4 className="text-md font-medium text-gray-900 mb-4">Additional Product Attributes</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="status">Product Status</Label>
+                    <Select
+                      value={formData.status || ''}
+                      onValueChange={(value) => handleInputChange('status', value)}
+                      disabled={!isEditing}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                        <SelectItem value="Discontinued">Discontinued</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="superceded_by">Superseded By</Label>
+                    <Input
+                      id="superceded_by"
+                      value={formData.superceded_by || ''}
+                      onChange={(e) => handleInputChange('superceded_by', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="Enter product code if applicable"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="web_title">Web Title</Label>
+                    <Input
+                      id="web_title"
+                      value={formData.web_title || ''}
+                      onChange={(e) => handleInputChange('web_title', e.target.value)}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="hyperlink">Product Link</Label>
+                    <Input
+                      id="hyperlink"
+                      type="url"
+                      value={formData.hyperlink || ''}
+                      onChange={(e) => handleInputChange('hyperlink', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="https://..."
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="features_and_benefits_codes">Features & Benefits</Label>
+                    <Input
+                      id="features_and_benefits_codes"
+                      value={formData.features_and_benefits_codes || ''}
+                      onChange={(e) => handleInputChange('features_and_benefits_codes', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="Comma-separated codes"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="badges_codes">Badge Codes</Label>
+                    <Input
+                      id="badges_codes"
+                      value={formData.badges_codes || ''}
+                      onChange={(e) => handleInputChange('badges_codes', e.target.value)}
+                      disabled={!isEditing}
+                      placeholder="Comma-separated codes"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="category_name">Category</Label>
+                    <Select
+                      value={formData.category_name || ''}
+                      onValueChange={(value) => handleInputChange('category_name', value)}
+                      disabled={!isEditing}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Television & Audio">Television & Audio</SelectItem>
+                        <SelectItem value="Home Appliances">Home Appliances</SelectItem>
+                        <SelectItem value="Mobile & Accessories">Mobile & Accessories</SelectItem>
+                        <SelectItem value="Computing">Computing</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="shipping_class">Shipping Class</Label>
+                    <Select
+                      value={formData.shipping_class || ''}
+                      onValueChange={(value) => handleInputChange('shipping_class', value)}
+                      disabled={!isEditing}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Large Items">Large Items</SelectItem>
+                        <SelectItem value="Standard">Standard</SelectItem>
+                        <SelectItem value="Express">Express</SelectItem>
+                        <SelectItem value="Fragile">Fragile</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="pack_size">Pack Size</Label>
+                    <Input
+                      id="pack_size"
+                      type="number"
+                      value={formData.pack_size || 1}
+                      onChange={(e) => handleInputChange('pack_size', parseInt(e.target.value))}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="core_group">Core Group</Label>
+                    <Input
+                      id="core_group"
+                      value={formData.core_group || ''}
+                      onChange={(e) => handleInputChange('core_group', e.target.value)}
+                      disabled={!isEditing}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="product_availability">Availability Status</Label>
+                    <Select
+                      value={formData.product_availability || ''}
+                      onValueChange={(value) => handleInputChange('product_availability', value)}
+                      disabled={!isEditing}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="In Stock">In Stock</SelectItem>
+                        <SelectItem value="Low Stock">Low Stock</SelectItem>
+                        <SelectItem value="Out of Stock">Out of Stock</SelectItem>
+                        <SelectItem value="Discontinued">Discontinued</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <Label htmlFor="description">Product Description</Label>
+                  <Textarea
+                    id="description"
+                    rows={3}
+                    value={formData.description || ''}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="Detailed product description..."
+                  />
+                </div>
+
+                <div className="mt-6">
+                  <Label htmlFor="summary">Product Summary</Label>
+                  <Textarea
+                    id="summary"
+                    rows={2}
+                    value={formData.summary || ''}
+                    onChange={(e) => handleInputChange('summary', e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="Brief product summary..."
+                  />
+                </div>
+
+                {/* Boolean Flags */}
+                <div className="mt-6">
+                  <h4 className="text-sm font-medium text-gray-900 mb-4">Product Settings</h4>
+                  <div className="flex flex-wrap gap-6">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="online"
+                        checked={formData.online || false}
+                        onCheckedChange={(checked) => handleInputChange('online', checked)}
+                        disabled={!isEditing}
+                      />
+                      <Label htmlFor="online">Available Online</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="tax_exmt"
+                        checked={formData.tax_exmt || false}
+                        onCheckedChange={(checked) => handleInputChange('tax_exmt', checked)}
+                        disabled={!isEditing}
+                      />
+                      <Label htmlFor="tax_exmt">Tax Exempt</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="stock_unmanaged"
+                        checked={formData.stock_unmanaged || false}
+                        onCheckedChange={(checked) => handleInputChange('stock_unmanaged', checked)}
+                        disabled={!isEditing}
+                      />
+                      <Label htmlFor="stock_unmanaged">Unmanaged Stock</Label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
