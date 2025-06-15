@@ -100,18 +100,42 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
     setFormData(prev => prev ? { ...prev, [field]: value } : null);
   };
 
-  const calculateMargin = (sellPrice: string, tradePrice: string) => {
-    const sell = parseFloat(sellPrice || '0');
-    const trade = parseFloat(tradePrice || '0');
-    if (trade === 0) return { percentage: 0, amount: 0 };
-    const amount = sell - trade;
-    const percentage = (amount / trade) * 100;
-    return { percentage: Math.round(percentage * 10) / 10, amount };
+  const calculateMarginDetails = (sellPriceIncl: string, costPriceIncl: string) => {
+    const sellPrice = parseFloat(sellPriceIncl || '0');
+    const costPrice = parseFloat(costPriceIncl || '0');
+    
+    if (costPrice === 0) return { 
+      grossMarginPercentage: 0, 
+      markupPercentage: 0, 
+      grossProfit: 0,
+      sellPriceExcl: 0,
+      costPriceExcl: 0
+    };
+
+    // GST calculations (10% GST)
+    const gstRate = 0.10;
+    const sellPriceExcl = sellPrice / (1 + gstRate);
+    const costPriceExcl = costPrice / (1 + gstRate);
+    
+    const grossProfit = sellPrice - costPrice;
+    const grossMarginPercentage = (grossProfit / sellPrice) * 100;
+    const markupPercentage = (grossProfit / costPrice) * 100;
+    
+    return { 
+      grossMarginPercentage: Math.round(grossMarginPercentage * 100) / 100, 
+      markupPercentage: Math.round(markupPercentage * 100) / 100, 
+      grossProfit: Math.round(grossProfit * 100) / 100,
+      sellPriceExcl: Math.round(sellPriceExcl * 100) / 100,
+      costPriceExcl: Math.round(costPriceExcl * 100) / 100
+    };
   };
 
-  const rrpMargin = calculateMargin(formData.rrp || '0', formData.trade || '0');
-  const mwpMargin = calculateMargin(formData.mwp || '0', formData.trade || '0');
-  const goMargin = calculateMargin(formData.go || '0', formData.trade || '0');
+  // Franchise level calculations (RRP vs Trade)
+  const franchiseMargin = calculateMarginDetails(formData.rrp || '0', formData.trade || '0');
+  
+  // Store level calculations (MWP vs Trade, GO vs Trade)
+  const mwpStoreMargin = calculateMarginDetails(formData.mwp || '0', formData.trade || '0');
+  const goStoreMargin = calculateMarginDetails(formData.go || '0', formData.trade || '0');
 
   const productAnalytics = analytics?.[0];
 
@@ -527,354 +551,104 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
               </div>
             </div>
             
-            {/* Margin Calculation Display */}
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-sm text-green-600 font-medium">RRP Margin</div>
-                <div className="text-xl font-bold text-green-700">{rrpMargin.percentage}%</div>
-                <div className="text-sm text-green-600">${rrpMargin.amount.toFixed(2)}</div>
+            {/* Enhanced Margin Calculators */}
+            <div className="mt-8 space-y-6">
+              {/* Franchise Level Margin Calculator */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <h4 className="text-lg font-semibold text-blue-900 mb-4">Franchise Level - Margin Calculator (Incl. GST)</h4>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                  <div className="text-center">
+                    <div className="text-sm text-blue-600 font-medium">Sell Price (incl.)</div>
+                    <div className="text-xl font-bold text-blue-800">${parseFloat(formData.rrp || '0').toFixed(2)}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-blue-600 font-medium">Net Cost (incl.)</div>
+                    <div className="text-xl font-bold text-blue-800">${parseFloat(formData.trade || '0').toFixed(2)}</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-blue-600 font-medium">Gross Margin</div>
+                    <div className="text-xl font-bold text-blue-800">{franchiseMargin.grossMarginPercentage}%</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-blue-600 font-medium">Markup</div>
+                    <div className="text-xl font-bold text-blue-800">{franchiseMargin.markupPercentage}%</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm text-blue-600 font-medium">Gross Profit (incl.)</div>
+                    <div className="text-xl font-bold text-blue-800">${franchiseMargin.grossProfit}</div>
+                  </div>
+                </div>
+                <div className="mt-4 pt-4 border-t border-blue-200">
+                  <div className="grid grid-cols-2 gap-4 text-sm text-blue-700">
+                    <div>Sell Price (excl. GST): ${franchiseMargin.sellPriceExcl}</div>
+                    <div>Net Cost (excl. GST): ${franchiseMargin.costPriceExcl}</div>
+                  </div>
+                </div>
               </div>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-sm text-blue-600 font-medium">MWP Margin</div>
-                <div className="text-xl font-bold text-blue-700">{mwpMargin.percentage}%</div>
-                <div className="text-sm text-blue-600">${mwpMargin.amount.toFixed(2)}</div>
-              </div>
-              <div className="bg-orange-50 p-4 rounded-lg">
-                <div className="text-sm text-orange-600 font-medium">GO Margin</div>
-                <div className="text-xl font-bold text-orange-700">{goMargin.percentage}%</div>
-                <div className="text-sm text-orange-600">${goMargin.amount.toFixed(2)}</div>
+
+              {/* Store Level Margin Calculators */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* MWP Store Level */}
+                <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-green-900 mb-4">Store Level (MWP) - Margin Calculator</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-600 font-medium">Sell Price (incl.):</span>
+                      <span className="font-bold text-green-800">${parseFloat(formData.mwp || '0').toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-600 font-medium">Net Cost (incl.):</span>
+                      <span className="font-bold text-green-800">${parseFloat(formData.trade || '0').toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-600 font-medium">Gross Margin:</span>
+                      <span className="font-bold text-green-800">{mwpStoreMargin.grossMarginPercentage}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-green-600 font-medium">Markup:</span>
+                      <span className="font-bold text-green-800">{mwpStoreMargin.markupPercentage}%</span>
+                    </div>
+                    <div className="flex justify-between border-t border-green-200 pt-2">
+                      <span className="text-sm text-green-600 font-medium">Gross Profit (incl.):</span>
+                      <span className="font-bold text-green-800">${mwpStoreMargin.grossProfit}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* GO Store Level */}
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
+                  <h4 className="text-lg font-semibold text-orange-900 mb-4">Store Level (GO) - Margin Calculator</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-orange-600 font-medium">Sell Price (incl.):</span>
+                      <span className="font-bold text-orange-800">${parseFloat(formData.go || '0').toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-orange-600 font-medium">Net Cost (incl.):</span>
+                      <span className="font-bold text-orange-800">${parseFloat(formData.trade || '0').toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-orange-600 font-medium">Gross Margin:</span>
+                      <span className="font-bold text-orange-800">{goStoreMargin.grossMarginPercentage}%</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-orange-600 font-medium">Markup:</span>
+                      <span className="font-bold text-orange-800">{goStoreMargin.markupPercentage}%</span>
+                    </div>
+                    <div className="flex justify-between border-t border-orange-200 pt-2">
+                      <span className="text-sm text-orange-600 font-medium">Gross Profit (incl.):</span>
+                      <span className="font-bold text-orange-800">${goStoreMargin.grossProfit}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Additional Attributes Card - Conditionally Displayed */}
-        {(showAllAttributes || isEditing) && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle>Additional Product Attributes</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <Label htmlFor="status">Product Status</Label>
-                  <Select
-                    value={formData.status || ''}
-                    onValueChange={(value) => handleInputChange('status', value)}
-                    disabled={!isEditing}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                      <SelectItem value="Discontinued">Discontinued</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="superceded_by">Superseded By</Label>
-                  <Input
-                    id="superceded_by"
-                    value={formData.superceded_by || ''}
-                    onChange={(e) => handleInputChange('superceded_by', e.target.value)}
-                    disabled={!isEditing}
-                    placeholder="Enter product code if applicable"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="web_title">Web Title</Label>
-                  <Input
-                    id="web_title"
-                    value={formData.web_title || ''}
-                    onChange={(e) => handleInputChange('web_title', e.target.value)}
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="hyperlink">Product Link</Label>
-                  <Input
-                    id="hyperlink"
-                    type="url"
-                    value={formData.hyperlink || ''}
-                    onChange={(e) => handleInputChange('hyperlink', e.target.value)}
-                    disabled={!isEditing}
-                    placeholder="https://..."
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="features_and_benefits_codes">Features & Benefits</Label>
-                  <Input
-                    id="features_and_benefits_codes"
-                    value={formData.features_and_benefits_codes || ''}
-                    onChange={(e) => handleInputChange('features_and_benefits_codes', e.target.value)}
-                    disabled={!isEditing}
-                    placeholder="Comma-separated codes"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="badges_codes">Badge Codes</Label>
-                  <Input
-                    id="badges_codes"
-                    value={formData.badges_codes || ''}
-                    onChange={(e) => handleInputChange('badges_codes', e.target.value)}
-                    disabled={!isEditing}
-                    placeholder="Comma-separated codes"
-                  />
-                </div>
-              </div>
 
-              <div className="mt-6">
-                <Label htmlFor="description">Product Description</Label>
-                <Textarea
-                  id="description"
-                  rows={3}
-                  value={formData.description || ''}
-                  onChange={(e) => handleInputChange('description', e.target.value)}
-                  disabled={!isEditing}
-                  placeholder="Detailed product description..."
-                />
-              </div>
 
-              <div className="mt-6">
-                <Label htmlFor="summary">Product Summary</Label>
-                <Textarea
-                  id="summary"
-                  rows={2}
-                  value={formData.summary || ''}
-                  onChange={(e) => handleInputChange('summary', e.target.value)}
-                  disabled={!isEditing}
-                  placeholder="Brief product summary..."
-                />
-              </div>
 
-              {/* Boolean Flags */}
-              <div className="mt-6">
-                <h4 className="text-sm font-medium text-gray-900 mb-4">Product Settings</h4>
-                <div className="flex flex-wrap gap-6">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="online"
-                      checked={formData.online || false}
-                      onCheckedChange={(checked) => handleInputChange('online', checked)}
-                      disabled={!isEditing}
-                    />
-                    <Label htmlFor="online">Available Online</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="tax_exmt"
-                      checked={formData.tax_exmt || false}
-                      onCheckedChange={(checked) => handleInputChange('tax_exmt', checked)}
-                      disabled={!isEditing}
-                    />
-                    <Label htmlFor="tax_exmt">Tax Exempt</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="stock_unmanaged"
-                      checked={formData.stock_unmanaged || false}
-                      onCheckedChange={(checked) => handleInputChange('stock_unmanaged', checked)}
-                      disabled={!isEditing}
-                    />
-                    <Label htmlFor="stock_unmanaged">Unmanaged Stock</Label>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Product Details Card */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Product Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="category_name">Category</Label>
-                <Select
-                  value={formData.category_name}
-                  onValueChange={(value) => handleInputChange('category_name', value)}
-                  disabled={!isEditing}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Television & Audio">Television & Audio</SelectItem>
-                    <SelectItem value="Home Appliances">Home Appliances</SelectItem>
-                    <SelectItem value="Mobile & Accessories">Mobile & Accessories</SelectItem>
-                    <SelectItem value="Computing">Computing</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="shipping_class">Shipping Class</Label>
-                <Select
-                  value={formData.shipping_class || ''}
-                  onValueChange={(value) => handleInputChange('shipping_class', value)}
-                  disabled={!isEditing}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Large Items">Large Items</SelectItem>
-                    <SelectItem value="Standard">Standard</SelectItem>
-                    <SelectItem value="Express">Express</SelectItem>
-                    <SelectItem value="Fragile">Fragile</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="pack_size">Pack Size</Label>
-                <Input
-                  id="pack_size"
-                  type="number"
-                  value={formData.pack_size}
-                  onChange={(e) => handleInputChange('pack_size', parseInt(e.target.value))}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div>
-                <Label htmlFor="core_group">Core Group</Label>
-                <Input
-                  id="core_group"
-                  value={formData.core_group || ''}
-                  onChange={(e) => handleInputChange('core_group', e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div>
-                <Label htmlFor="product_availability">Availability Status</Label>
-                <Select
-                  value={formData.product_availability}
-                  onValueChange={(value) => handleInputChange('product_availability', value)}
-                  disabled={!isEditing}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="In Stock">In Stock</SelectItem>
-                    <SelectItem value="Low Stock">Low Stock</SelectItem>
-                    <SelectItem value="Out of Stock">Out of Stock</SelectItem>
-                    <SelectItem value="Discontinued">Discontinued</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="superceded_by">Superseded By</Label>
-                <Input
-                  id="superceded_by"
-                  value={formData.superceded_by || ''}
-                  onChange={(e) => handleInputChange('superceded_by', e.target.value)}
-                  disabled={!isEditing}
-                  placeholder="Enter product code if applicable"
-                />
-              </div>
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="web_title">Web Title</Label>
-                <Input
-                  id="web_title"
-                  value={formData.web_title || ''}
-                  onChange={(e) => handleInputChange('web_title', e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div>
-                <Label htmlFor="hyperlink">Hyperlink</Label>
-                <Input
-                  id="hyperlink"
-                  type="url"
-                  value={formData.hyperlink || ''}
-                  onChange={(e) => handleInputChange('hyperlink', e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                rows={3}
-                value={formData.description || ''}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                disabled={!isEditing}
-              />
-            </div>
-
-            <div className="mt-6">
-              <Label htmlFor="summary">Summary</Label>
-              <Textarea
-                id="summary"
-                rows={2}
-                value={formData.summary || ''}
-                onChange={(e) => handleInputChange('summary', e.target.value)}
-                disabled={!isEditing}
-              />
-            </div>
-
-            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <Label htmlFor="features_and_benefits_codes">Features & Benefits Codes</Label>
-                <Input
-                  id="features_and_benefits_codes"
-                  value={formData.features_and_benefits_codes || ''}
-                  onChange={(e) => handleInputChange('features_and_benefits_codes', e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-              <div>
-                <Label htmlFor="badges_codes">Badge Codes</Label>
-                <Input
-                  id="badges_codes"
-                  value={formData.badges_codes || ''}
-                  onChange={(e) => handleInputChange('badges_codes', e.target.value)}
-                  disabled={!isEditing}
-                />
-              </div>
-            </div>
-
-            {/* Checkboxes */}
-            <div className="mt-6 flex flex-wrap gap-6">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="online"
-                  checked={formData.online}
-                  onCheckedChange={(checked) => handleInputChange('online', checked)}
-                  disabled={!isEditing}
-                />
-                <Label htmlFor="online">Available Online</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="tax_exmt"
-                  checked={formData.tax_exmt}
-                  onCheckedChange={(checked) => handleInputChange('tax_exmt', checked)}
-                  disabled={!isEditing}
-                />
-                <Label htmlFor="tax_exmt">Tax Exempt</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="stock_unmanaged"
-                  checked={formData.stock_unmanaged}
-                  onCheckedChange={(checked) => handleInputChange('stock_unmanaged', checked)}
-                  disabled={!isEditing}
-                />
-                <Label htmlFor="stock_unmanaged">Unmanaged Stock</Label>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Sales Performance Card */}
         {productAnalytics && (
