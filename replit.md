@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a full-stack electronics franchise management system built with React, Express, and PostgreSQL. The application provides comprehensive product management capabilities including inventory tracking, sell-in/sell-through analytics, and bulk product operations for electronics retailers.
+This is a full-stack electronics franchise management system built with React, FastAPI, and PostgreSQL. The application provides comprehensive product management capabilities including inventory tracking, sell-in/sell-through analytics, and bulk product operations for electronics retailers.
 
 ## System Architecture
 
@@ -16,17 +16,17 @@ This is a full-stack electronics franchise management system built with React, E
 - **Forms**: React Hook Form with Zod validation
 
 ### Backend Architecture
-- **Runtime**: Node.js with Express.js server
-- **Language**: TypeScript with ES modules
-- **Database**: PostgreSQL with Drizzle ORM
-- **Session Management**: Express sessions with PostgreSQL store
+- **Runtime**: Python 3.11 with FastAPI
+- **Language**: Python with type hints
+- **Database**: PostgreSQL with SQLAlchemy ORM
+- **Session Management**: FastAPI session or authentication middleware (future)
 - **API Design**: RESTful endpoints with JSON responses
 
 ### Database Design
-- **ORM**: Drizzle ORM with TypeScript-first schema definitions
+- **ORM**: SQLAlchemy with Python models
 - **Database**: PostgreSQL 16 with connection pooling via Neon serverless
-- **Migrations**: Drizzle Kit for schema migrations
-- **Schema Location**: `shared/schema.ts` for type sharing between client/server
+- **Migrations**: Alembic (planned)
+- **Schema Location**: `python_server/db_models.py`
 
 ## Key Components
 
@@ -52,8 +52,8 @@ This is a full-stack electronics franchise management system built with React, E
 
 ### Client-Server Communication
 1. React components make API calls using TanStack Query
-2. Express routes handle business logic and data validation
-3. Drizzle ORM manages database operations
+2. FastAPI routes handle business logic and data validation
+3. SQLAlchemy ORM manages database operations
 4. Results are cached on the client for performance
 
 ### Form Handling
@@ -72,7 +72,7 @@ This is a full-stack electronics franchise management system built with React, E
 
 ### Core Dependencies
 - **@neondatabase/serverless**: PostgreSQL connection for serverless environments
-- **drizzle-orm**: Type-safe database ORM
+- **sqlalchemy**: Python ORM for database access
 - **@tanstack/react-query**: Server state management
 - **react-hook-form**: Form state management
 - **zod**: Runtime type validation
@@ -86,30 +86,29 @@ This is a full-stack electronics franchise management system built with React, E
 ### Development Dependencies
 - **vite**: Build tool and dev server
 - **typescript**: Type system
-- **tsx**: TypeScript execution for server
-- **esbuild**: Fast JavaScript bundler
+- **uvicorn**: Development server for FastAPI
 
 ## Deployment Strategy
 
 ### Development Environment
 - **Command**: `npm run dev`
-- **Server**: Node.js with tsx for TypeScript execution
+- **Server**: FastAPI served by Uvicorn with hot reload
 - **Client**: Vite dev server with HMR
 - **Database**: PostgreSQL connection via environment variable
 
 ### Production Build
 - **Client Build**: `vite build` - Creates optimized static assets
-- **Server Build**: `esbuild` - Bundles server code for Node.js
-- **Start Command**: `npm run start` - Runs production server
+- **Server Build**: Python modules installed from `requirements.txt`
+- **Start Command**: `npm run start` - Runs Gunicorn with Uvicorn workers
 
 ### Platform Configuration
 - **Deployment Target**: Replit autoscale infrastructure
 - **Port Configuration**: Server runs on port 5000, exposed as port 80
-- **Environment**: Node.js 20 with PostgreSQL 16 module
+- **Environment**: Node.js 20, Python 3.11, and PostgreSQL 16 modules
 - **Build Process**: Automated via Replit deployment configuration
 
 ### Database Management
-- **Schema**: Managed through Drizzle migrations
+- **Schema**: Managed through future Alembic migrations
 - **Push Command**: `npm run db:push` - Applies schema changes
 - **Connection**: Serverless PostgreSQL via DATABASE_URL environment variable
 
