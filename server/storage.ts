@@ -139,10 +139,15 @@ export class MemStorage implements IStorage {
   async createSellIn(insertSellIn: InsertSellIn): Promise<SellIn> {
     const id = this.currentSellInId++;
     const sellIn: SellIn = {
-      ...insertSellIn,
       id,
-      created_at: new Date(),
+      product_id: insertSellIn.product_id,
+      quantity: insertSellIn.quantity,
+      unit_cost: insertSellIn.unit_cost,
+      total_cost: insertSellIn.total_cost,
+      transaction_date: insertSellIn.transaction_date,
+      month_partition: insertSellIn.month_partition,
       notes: insertSellIn.notes || null,
+      created_at: new Date(),
     };
     this.sellIns.set(id, sellIn);
     return sellIn;
@@ -165,10 +170,15 @@ export class MemStorage implements IStorage {
   async createSellThrough(insertSellThrough: InsertSellThrough): Promise<SellThrough> {
     const id = this.currentSellThroughId++;
     const sellThrough: SellThrough = {
-      ...insertSellThrough,
       id,
-      created_at: new Date(),
+      product_id: insertSellThrough.product_id,
+      quantity: insertSellThrough.quantity,
+      unit_price: insertSellThrough.unit_price,
+      total_revenue: insertSellThrough.total_revenue,
+      transaction_date: insertSellThrough.transaction_date,
+      month_partition: insertSellThrough.month_partition,
       customer_info: insertSellThrough.customer_info || null,
+      created_at: new Date(),
     };
     this.sellThroughs.set(id, sellThrough);
     return sellThrough;
