@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Save, Edit, Camera } from "lucide-react";
+import { Save, Edit, Camera, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Product, ProductAnalytics } from "@shared/schema";
 import { apiRequest } from "@/lib/queryClient";
@@ -20,6 +20,7 @@ interface ProductDetailsProps {
 
 export default function ProductDetails({ productId }: ProductDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [showAllAttributes, setShowAllAttributes] = useState(false);
   const [formData, setFormData] = useState<Product | null>(null);
   const { toast } = useToast();
 
@@ -61,6 +62,12 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
       setFormData(product);
     }
   }, [product]);
+
+  useEffect(() => {
+    if (isEditing) {
+      setShowAllAttributes(true);
+    }
+  }, [isEditing]);
 
   if (!productId) {
     return (
@@ -120,15 +127,37 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                 <Badge variant={formData.status === 'Active' ? 'default' : 'secondary'}>
                   {formData.status}
                 </Badge>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsEditing(!isEditing)}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {isEditing ? 'Cancel' : 'Edit Product'}
-                </Button>
+                <div className="flex items-center space-x-2">
+                  {!isEditing && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowAllAttributes(!showAllAttributes)}
+                    >
+                      {showAllAttributes ? (
+                        <>
+                          <ChevronUp className="h-4 w-4 mr-1" />
+                          Hide Attributes
+                        </>
+                      ) : (
+                        <>
+                          <ChevronDown className="h-4 w-4 mr-1" />
+                          Show All Attributes
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(!isEditing)}
+                  >
+                    <Edit className="h-4 w-4 mr-2" />
+                    {isEditing ? 'Cancel' : 'Edit Product'}
+                  </Button>
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -156,7 +185,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                     <Label htmlFor="product_name">Product Name</Label>
                     <Input
                       id="product_name"
-                      value={formData.product_name}
+                      value={formData.product_name || ''}
                       onChange={(e) => handleInputChange('product_name', e.target.value)}
                       disabled={!isEditing}
                     />
@@ -165,7 +194,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                     <Label htmlFor="product_code">Product Code</Label>
                     <Input
                       id="product_code"
-                      value={formData.product_code}
+                      value={formData.product_code || ''}
                       onChange={(e) => handleInputChange('product_code', e.target.value)}
                       disabled={!isEditing}
                     />
@@ -174,7 +203,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                     <Label htmlFor="brand_name">Brand Name</Label>
                     <Input
                       id="brand_name"
-                      value={formData.brand_name}
+                      value={formData.brand_name || ''}
                       onChange={(e) => handleInputChange('brand_name', e.target.value)}
                       disabled={!isEditing}
                     />
@@ -191,7 +220,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                   <div>
                     <Label htmlFor="distributor_name">Distributor</Label>
                     <Select
-                      value={formData.distributor_name}
+                      value={formData.distributor_name || ''}
                       onValueChange={(value) => handleInputChange('distributor_name', value)}
                       disabled={!isEditing}
                     >
@@ -202,6 +231,8 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
                         <SelectItem value="Samsung Electronics">Samsung Electronics</SelectItem>
                         <SelectItem value="Tech Distributors Ltd">Tech Distributors Ltd</SelectItem>
                         <SelectItem value="Electronics Wholesale Co">Electronics Wholesale Co</SelectItem>
+                        <SelectItem value="Beko">Beko</SelectItem>
+                        <SelectItem value="LG Electronics">LG Electronics</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -309,6 +340,144 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
             </div>
           </CardContent>
         </Card>
+
+        {/* Additional Attributes Card - Conditionally Displayed */}
+        {(showAllAttributes || isEditing) && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Additional Product Attributes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="status">Product Status</Label>
+                  <Select
+                    value={formData.status || ''}
+                    onValueChange={(value) => handleInputChange('status', value)}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Active">Active</SelectItem>
+                      <SelectItem value="Inactive">Inactive</SelectItem>
+                      <SelectItem value="Discontinued">Discontinued</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="superceded_by">Superseded By</Label>
+                  <Input
+                    id="superceded_by"
+                    value={formData.superceded_by || ''}
+                    onChange={(e) => handleInputChange('superceded_by', e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="Enter product code if applicable"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="web_title">Web Title</Label>
+                  <Input
+                    id="web_title"
+                    value={formData.web_title || ''}
+                    onChange={(e) => handleInputChange('web_title', e.target.value)}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="hyperlink">Product Link</Label>
+                  <Input
+                    id="hyperlink"
+                    type="url"
+                    value={formData.hyperlink || ''}
+                    onChange={(e) => handleInputChange('hyperlink', e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="https://..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="features_and_benefits_codes">Features & Benefits</Label>
+                  <Input
+                    id="features_and_benefits_codes"
+                    value={formData.features_and_benefits_codes || ''}
+                    onChange={(e) => handleInputChange('features_and_benefits_codes', e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="Comma-separated codes"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="badges_codes">Badge Codes</Label>
+                  <Input
+                    id="badges_codes"
+                    value={formData.badges_codes || ''}
+                    onChange={(e) => handleInputChange('badges_codes', e.target.value)}
+                    disabled={!isEditing}
+                    placeholder="Comma-separated codes"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <Label htmlFor="description">Product Description</Label>
+                <Textarea
+                  id="description"
+                  rows={3}
+                  value={formData.description || ''}
+                  onChange={(e) => handleInputChange('description', e.target.value)}
+                  disabled={!isEditing}
+                  placeholder="Detailed product description..."
+                />
+              </div>
+
+              <div className="mt-6">
+                <Label htmlFor="summary">Product Summary</Label>
+                <Textarea
+                  id="summary"
+                  rows={2}
+                  value={formData.summary || ''}
+                  onChange={(e) => handleInputChange('summary', e.target.value)}
+                  disabled={!isEditing}
+                  placeholder="Brief product summary..."
+                />
+              </div>
+
+              {/* Boolean Flags */}
+              <div className="mt-6">
+                <h4 className="text-sm font-medium text-gray-900 mb-4">Product Settings</h4>
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="online"
+                      checked={formData.online || false}
+                      onCheckedChange={(checked) => handleInputChange('online', checked)}
+                      disabled={!isEditing}
+                    />
+                    <Label htmlFor="online">Available Online</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="tax_exmt"
+                      checked={formData.tax_exmt || false}
+                      onCheckedChange={(checked) => handleInputChange('tax_exmt', checked)}
+                      disabled={!isEditing}
+                    />
+                    <Label htmlFor="tax_exmt">Tax Exempt</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="stock_unmanaged"
+                      checked={formData.stock_unmanaged || false}
+                      onCheckedChange={(checked) => handleInputChange('stock_unmanaged', checked)}
+                      disabled={!isEditing}
+                    />
+                    <Label htmlFor="stock_unmanaged">Unmanaged Stock</Label>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Product Details Card */}
         <Card className="mb-6">
