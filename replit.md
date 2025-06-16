@@ -103,7 +103,7 @@ This is a full-stack electronics franchise management system built with React, F
 
 ### Platform Configuration
 - **Deployment Target**: Replit autoscale infrastructure
-- **Port Configuration**: Server runs on port 5000, exposed as port 80
+ - **Port Configuration**: Server runs on port 5001, exposed as port 80
 - **Environment**: Node.js 20, Python 3.11, and PostgreSQL 16 modules
 - **Build Process**: Automated via Replit deployment configuration
 

@@ -25,7 +25,7 @@ app.include_router(analytics_router)
 @app.on_event("startup")
 async def startup():
     await init_db()
-    log("serving on port 5000")
+    log("serving on port 5001")
 
 # Setup static serving or Vite proxy depending on environment
 if settings.node_env == "development":

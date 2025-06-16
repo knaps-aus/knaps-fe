@@ -8,10 +8,10 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "autoscale"
 build = ["bash", "-lc", "pip install -r requirements.txt && npm run build"]
-run = ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:5000", "python_server.main:app"]
+run = ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:5001", "python_server.main:app"]
 
 [[ports]]
-localPort = 5000
+localPort = 5001
 externalPort = 80
 
 [workflows]
@@ -33,4 +33,4 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
-waitForPort = 5000
+waitForPort = 5001
