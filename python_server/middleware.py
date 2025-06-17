@@ -14,22 +14,12 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
 
-        try:
-            body_bytes = await request.body()
-            request._body = body_bytes
-            body_text = body_bytes.decode("utf-8")
-        except Exception:
-            body_text = ""
-        if len(body_text) > 100:
-            body_text = body_text[:97] + "..."
-
         logger.info(
             "request",
             extra={
                 "request_id": request_id,
                 "method": request.method,
                 "path": request.url.path,
-                "body": body_text,
             },
         )
 
