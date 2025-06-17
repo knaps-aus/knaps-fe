@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from .database import init_db
 from .config import settings
@@ -16,6 +17,15 @@ app = FastAPI()
 
 app.add_middleware(LoggingMiddleware)
 app.add_exception_handler(Exception, http_error_handler)
+
+# CORS configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(products_router)
 app.include_router(sell_ins_router)
