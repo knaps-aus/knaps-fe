@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development bash -c 'vite build --watch & tsx watch server/index.js'",
+    "dev": "NODE_ENV=development bash -c 'VITE_ENV=development vite build --watch & tsx watch server/index.js'",
     "build": "vite build",
     "start": "node server/index.js",
     "check": "tsc",
