@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Product } from "@shared/schema";
+import { API_BASE_URL } from "@/lib/queryClient";
 
 interface ProductSearchProps {
   onSelectProduct: (productId: number) => void;
@@ -16,7 +17,9 @@ export default function ProductSearch({ onSelectProduct }: ProductSearchProps) {
     queryKey: ['/api/products/search', query],
     queryFn: async () => {
       if (query.length < 2) return [];
-      const response = await fetch(`/api/products/search?q=${encodeURIComponent(query)}`);
+      const response = await fetch(
+        `${API_BASE_URL}/api/products/search?q=${encodeURIComponent(query)}`,
+      );
       if (!response.ok) throw new Error('Search failed');
       return response.json();
     },

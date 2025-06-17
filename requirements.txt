@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+gunicorn
+sqlalchemy
+asyncpg
+aiosqlite
+httpx
+pydantic-settings
