@@ -14,12 +14,21 @@ class StructuredLoggingMiddleware(BaseHTTPMiddleware):
         request_id = str(uuid.uuid4())
         request.state.request_id = request_id
 
+        body_text = ""
         try:
-            body_bytes = await request.body()
-            request._body = body_bytes
-            body_text = body_bytes.decode("utf-8")
-        except Exception:
-            body_text = ""
+            content_length = int(request.headers.get("content-length", "0"))
+        except ValueError:
+            content_length = 0
+
+        if content_length and content_length <= 1000:
+            try:
+                body_bytes = await request.body()
+                request._body = body_bytes
+                body_text = body_bytes.decode("utf-8")
+            except Exception:
+                body_text = ""
+        elif content_length and content_length > 1000:
+            body_text = f"[{content_length} bytes omitted]"
         if len(body_text) > 100:
             body_text = body_text[:97] + "..."
 
