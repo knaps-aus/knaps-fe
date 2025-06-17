@@ -84,7 +84,7 @@ This is a full-stack electronics franchise management system built with React, F
 - **date-fns**: Date manipulation utilities
 
 ### Development Dependencies
-- **vite**: Build tool and dev server
+- **vite**: Build tool for bundling the frontend
 - **typescript**: Type system
 - **uvicorn**: Development server for FastAPI
 
@@ -92,14 +92,14 @@ This is a full-stack electronics franchise management system built with React, F
 
 ### Development Environment
 - **Command**: `npm run dev`
-- **Server**: FastAPI served by Uvicorn with hot reload
-- **Client**: Vite dev server with HMR
+- **Client**: Vite dev server on port 5173
+- **Server**: FastAPI served by Uvicorn on port 5001
 - **Database**: PostgreSQL connection via environment variable
 
 ### Production Build
 - **Client Build**: `vite build` - Creates optimized static assets
 - **Server Build**: Python modules installed from `requirements.txt`
-- **Start Command**: `npm run start` - Runs Gunicorn with Uvicorn workers
+- **Start Command**: `npm run start` for the API and `npm run start:client` for the frontend
 
 ### Platform Configuration
 - **Deployment Target**: Replit autoscale infrastructure
