@@ -11,7 +11,6 @@ from .routes.products.router import router as products_router
 from .routes.sell_ins.router import router as sell_ins_router
 from .routes.sell_throughs.router import router as sell_throughs_router
 from .routes.analytics.router import router as analytics_router
-from .static import mount_static
 
 app = FastAPI()
 
@@ -37,5 +36,3 @@ async def startup():
     await init_db()
     log("serving on port 5001")
 
-# Serve prebuilt frontend
-mount_static(app)
