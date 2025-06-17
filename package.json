@@ -4,7 +4,7 @@
   "type": "module",
   "license": "MIT",
   "scripts": {
-    "dev": "NODE_ENV=development bash -c 'vite & uvicorn python_server.main:app --reload --host 0.0.0.0 --port 5001'",
+    "dev": "NODE_ENV=development uvicorn python_server.main:app --reload --host 0.0.0.0 --port 5001",
     "build": "vite build",
     "start": "gunicorn -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:5001 python_server.main:app",
     "check": "tsc",
