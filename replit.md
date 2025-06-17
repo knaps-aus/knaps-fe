@@ -6,6 +6,11 @@ This is a full-stack electronics franchise management system built with React, F
 
 ## System Architecture
 
+This project is split into two micro services:
+
+1. **Client Service** – a React application served by a lightweight Express server. The client code lives in `client/` and the Express server code lives in `server/`.
+2. **API Service** – a FastAPI application located in `python_server/`.
+
 ### Frontend Architecture
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite for fast development and optimized builds
@@ -91,19 +96,19 @@ This is a full-stack electronics franchise management system built with React, F
 ## Deployment Strategy
 
 ### Development Environment
-- **Command**: `npm run dev`
-- **Server**: FastAPI served by Uvicorn with hot reload
-- **Client**: Vite builds static assets in watch mode (no dev server)
+- **Client Command**: `npm run dev` – builds the React app in watch mode and runs the Express server.
+- **API Command**: `uvicorn python_server.main:app --reload --host 0.0.0.0 --port 5001`
 - **Database**: PostgreSQL connection via environment variable
 
 ### Production Build
-- **Client Build**: `vite build` - Creates optimized static assets
-- **Server Build**: Python modules installed from `requirements.txt`
-- **Start Command**: `npm run start` - Runs Gunicorn with Uvicorn workers
+ - **Client Build**: `vite build` – produces static assets served by Express
+ - **API Build**: install Python modules from `requirements.txt`
+ - **Client Start**: `npm start`
+ - **API Start**: `gunicorn -k uvicorn.workers.UvicornWorker python_server.main:app`
 
 ### Platform Configuration
-- **Deployment Target**: Replit autoscale infrastructure
- - **Port Configuration**: Server runs on port 5001, exposed as port 80
+ - **Deployment Target**: Replit autoscale infrastructure
+ - **Port Configuration**: Client service runs on port 3000 and the API service on port 5001
 - **Environment**: Node.js 20, Python 3.11, and PostgreSQL 16 modules
 - **Build Process**: Automated via Replit deployment configuration
 
