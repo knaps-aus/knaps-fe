@@ -3,13 +3,14 @@ from fastapi import FastAPI
 from starlette.staticfiles import StaticFiles
 
 BASE_DIR = Path(__file__).resolve().parent
-PUBLIC_DIR = BASE_DIR / "public"
+REPO_ROOT = BASE_DIR.parent
+PUBLIC_DIR = REPO_ROOT / "dist" / "public"
 
 
 def mount_static(app: FastAPI) -> None:
     if not PUBLIC_DIR.exists():
         raise RuntimeError(
-            f"Could not find the build directory: {PUBLIC_DIR}, make sure to build the client first"
+            f"Could not find the build directory: {PUBLIC_DIR}. Run 'npm run build' first."
         )
     app.mount(
         "/",
