@@ -26,7 +26,7 @@ LOG_CONFIG = {
     "disable_existing_loggers": False,
     "formatters": {
         "console": {"format": "%(levelname)s %(name)s - %(message)s"},
-        "json": {"()": "python_server.logging_config.JsonFormatter"},
+        "json": {"()": JsonFormatter},
     },
     "handlers": {
         "console": {"class": "logging.StreamHandler", "formatter": "console"},
