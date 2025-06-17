@@ -2,6 +2,9 @@ from fastapi import APIRouter, HTTPException, Response
 from typing import List
 from ...models import Product, InsertProduct, UpdateProduct
 from ...storage import storage
+import logging
+
+log = logging.getLogger("knaps")
 
 router = APIRouter(prefix="/api/products")
 
@@ -39,23 +42,26 @@ async def update_product(product_id: int, data: UpdateProduct):
 @router.delete("/{product_id}", status_code=204)
 async def delete_product(product_id: int):
     deleted = await storage.delete_product(product_id)
-    if not deleted:
+    if not deleted:        
         raise HTTPException(status_code=404, detail="Product not found")
     return Response(status_code=204)
 
 @router.post("/bulk")
 async def bulk_create(products: List[InsertProduct]):
+    log.info("Starting bulk product upload")
     results = []
     errors = []
-    for idx, data in enumerate(products):
+    for data in products:
         try:
             if await storage.get_product_by_code(data.product_code):
-                errors.append({"row": idx+1, "error": "Product code already exists"})
+                log.debug(f"Product code already exists {data.product_code}")
+                #TODO add check if attributes are different
                 continue
             product = await storage.create_product(data)
             results.append(product)
         except Exception as e:
-            errors.append({"row": idx+1, "error": "Failed to create product"})
+            log.debug(f"Failed to create product with code {data.product_code}")
+            errors.append(data.product_code)
     return {
         "success": len(results),
         "errors": len(errors),
