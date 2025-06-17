@@ -8,4 +8,4 @@ const API_BASE_URLS: Record<AppEnv, string> = {
   production: 'https://example.com',
 };
 
-export const API_BASE_URL = API_BASE_URLS[env] + '/api';
+export const API_BASE_URL = API_BASE_URLS[env];

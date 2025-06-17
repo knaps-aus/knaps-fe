@@ -85,6 +85,7 @@ This is a full-stack electronics franchise management system built with React, F
 
 ### Development Dependencies
 - **vite**: Build tool for bundling the frontend
+- **vite**: Build tool for bundling the frontend
 - **typescript**: Type system
 - **uvicorn**: Development server for FastAPI
 
