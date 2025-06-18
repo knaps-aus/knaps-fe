@@ -46,6 +46,7 @@ class SQLStorage:
 
     async def search_products(self, query: str) -> List[Product]:
         q = f"%{query.lower()}%"
+        logger.info("Printing query {q}")
         async with AsyncSessionLocal() as session:
             stmt = select(ProductModel).where(
                 (ProductModel.product_name.ilike(q))

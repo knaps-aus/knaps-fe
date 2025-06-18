@@ -3,7 +3,7 @@ from typing import List, Optional
 from ...models import SellThrough, InsertSellThrough
 from ...storage import storage
 
-router = APIRouter(prefix="/api/sell-throughs")
+router = APIRouter(prefix="/sell-throughs")
 
 @router.get("", response_model=List[SellThrough])
 async def list_sell_throughs(product_id: Optional[str] = None, month: Optional[str] = None):

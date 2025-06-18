@@ -6,13 +6,13 @@ import logging
 
 logger = logging.getLogger('uvicorn.error')
 
-router = APIRouter(prefix="/api/products")
+router = APIRouter(prefix="/products")
 
 @router.get("", response_model=List[Product])
 async def list_products():
     return await storage.get_products()
 
-@router.get("/search/", response_model=List[Product])
+@router.get("/search", response_model=List[Product])
 async def search_products(q: str):
     logger.info(f"Searching for product: {q}")
     if len(q) < 2:
