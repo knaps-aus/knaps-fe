@@ -4,7 +4,7 @@ from ...models import Product, InsertProduct, UpdateProduct
 from ...storage import storage
 import logging
 
-log = logging.getLogger("knaps")
+logger = logging.getLogger('uvicorn.error')
 
 router = APIRouter(prefix="/api/products")
 
@@ -12,8 +12,9 @@ router = APIRouter(prefix="/api/products")
 async def list_products():
     return await storage.get_products()
 
-@router.get("/search", response_model=List[Product])
-async def search_products(q: str = ''):
+@router.get("/search/", response_model=List[Product])
+async def search_products(q: str):
+    logger.info(f"Searching for product: {q}")
     if len(q) < 2:
         return []
     return await storage.search_products(q)
@@ -48,19 +49,20 @@ async def delete_product(product_id: int):
 
 @router.post("/bulk")
 async def bulk_create(products: List[InsertProduct]):
-    log.info("Starting bulk product upload")
+    logger.info("Starting bulk product upload")
     results = []
     errors = []
     for data in products:
+        logger.info(f"Uploading {data.product_code}, product data {data}")
         try:
             if await storage.get_product_by_code(data.product_code):
-                log.debug(f"Product code already exists {data.product_code}")
-                #TODO add check if attributes are different
+                logger.info(f"Product code already exists {data.product_code}")
+                #TODO add check if attributes are different then update 
                 continue
             product = await storage.create_product(data)
             results.append(product)
         except Exception as e:
-            log.debug(f"Failed to create product with code {data.product_code}")
+            logger.warning(f"Failed to create product with code {data.product_code} with error {e}")
             errors.append(data.product_code)
     return {
         "success": len(results),

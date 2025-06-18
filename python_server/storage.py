@@ -13,10 +13,14 @@ from .models import (
     ProductAnalytics,
     OverallAnalytics,
 )
+import logging 
+
+logger = logging.getLogger('uvicorn.error')
 
 
 def to_schema(obj, schema_cls):
     if hasattr(schema_cls, "model_validate"):
+        logger.debug(f"Model {obj} or {schema_cls}")
         return schema_cls.model_validate(obj, from_attributes=True)
     return schema_cls.from_orm(obj)
 
@@ -82,7 +86,7 @@ class SQLStorage:
 
     # SellIn operations
     async def get_sell_ins(
-        self, product_id: Optional[int] = None, month: Optional[str] = None
+        self, product_id: Optional[str] = None, month: Optional[str] = None
     ) -> List[SellIn]:
         async with AsyncSessionLocal() as session:
             stmt = select(SellInModel)
@@ -103,7 +107,7 @@ class SQLStorage:
 
     # SellThrough operations
     async def get_sell_throughs(
-        self, product_id: Optional[int] = None, month: Optional[str] = None
+        self, product_id: Optional[str] = None, month: Optional[str] = None
     ) -> List[SellThrough]:
         async with AsyncSessionLocal() as session:
             stmt = select(SellThroughModel)
@@ -124,7 +128,7 @@ class SQLStorage:
 
     # Analytics operations
     async def get_product_analytics(
-        self, product_id: Optional[int] = None, month: Optional[str] = None
+        self, product_id: Optional[str] = None, month: Optional[str] = None
     ) -> List[ProductAnalytics]:
         async with AsyncSessionLocal() as session:
             prod_stmt = select(ProductModel)

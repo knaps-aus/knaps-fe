@@ -6,7 +6,7 @@ from ...storage import storage
 router = APIRouter(prefix="/api/analytics")
 
 @router.get("/products", response_model=List[ProductAnalytics])
-async def product_analytics(product_id: Optional[int] = None, month: Optional[str] = None):
+async def product_analytics(product_id: Optional[str] = None, month: Optional[str] = None):
     return await storage.get_product_analytics(product_id, month)
 
 @router.get("/overall", response_model=OverallAnalytics)

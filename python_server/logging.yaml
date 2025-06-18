@@ -1,0 +1,55 @@
+version: 1
+disable_existing_loggers: true
+
+formatters:
+  standard:
+    format: '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+  custom_formatter:
+    format: >-
+      {'time':'%(asctime)s',
+       'process_name':'%(processName)s',
+       'process_id':'%(process)s',
+       'thread_name':'%(threadName)s',
+       'thread_id':'%(thread)s',
+       'level':'%(levelname)s',
+       'logger_name':'%(name)s',
+       'message':'%(message)s'}
+
+handlers:
+  default:
+    class: logging.StreamHandler
+    formatter: standard
+    stream: ext://sys.stdout
+
+  stream_handler:
+    class: logging.StreamHandler
+    formatter: custom_formatter
+    stream: ext://sys.stdout
+
+  file_handler:
+    class: logging.handlers.RotatingFileHandler
+    formatter: custom_formatter
+    filename: app.log
+    maxBytes: 1048576      # 1 MB
+    backupCount: 3
+
+loggers:
+  uvicorn:
+    handlers: [default, file_handler]
+    level: TRACE
+    propagate: false
+
+  uvicorn.access:
+    handlers: [stream_handler, file_handler]
+    level: TRACE
+    propagate: false
+
+  uvicorn.error:
+    handlers: [stream_handler, file_handler]
+    level: TRACE
+    propagate: false
+
+  uvicorn.asgi:
+    handlers: [stream_handler, file_handler]
+    level: TRACE
+    propagate: false

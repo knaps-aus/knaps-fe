@@ -1,10 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+
 
 from .database import init_db
 from .config import settings
-from .logging_config import LOG
-from .middleware import StructuredLoggingMiddleware, http_error_handler
+import logging, yaml
+
 from .routes.products.router import router as products_router
 from .routes.sell_ins.router import router as sell_ins_router
 from .routes.sell_throughs.router import router as sell_throughs_router
@@ -12,10 +15,17 @@ from .routes.analytics.router import router as analytics_router
 
 app = FastAPI()
 
-app.add_middleware(StructuredLoggingMiddleware)
-app.add_exception_handler(Exception, http_error_handler)
+# with open('python_server/logging.yaml') as f:
+#     cfg = yaml.safe_load(f)
+# logging.config.dictConfig(cfg)
 
-# CORS configuration
+logger = logging.getLogger('uvicorn.error')
+
+# TODO add for porduction env 
+# app.add_middleware(HTTPSRedirectMiddleware)
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["example.com", "*.example.com", "127.0.0.1"])
+# # CORS configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -29,8 +39,11 @@ app.include_router(sell_ins_router)
 app.include_router(sell_throughs_router)
 app.include_router(analytics_router)
 
-
 @app.on_event("startup")
 async def startup():
     await init_db()
-    LOG.info("serving API on port 5001")
+
+@app.get("/")
+async def main():
+    return {"message": "Application alive"}
+

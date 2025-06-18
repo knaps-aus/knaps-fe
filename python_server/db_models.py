@@ -44,7 +44,7 @@ class SellInModel(Base):
     __tablename__ = "sell_ins"
 
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)
     unit_cost = Column(Numeric(10, 2), nullable=False)
     total_cost = Column(Numeric(10, 2), nullable=False)
@@ -59,7 +59,7 @@ class SellThroughModel(Base):
     __tablename__ = "sell_throughs"
 
     id = Column(Integer, primary_key=True)
-    product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
+    product_id = Column(String, ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)
     unit_price = Column(Numeric(10, 2), nullable=False)
     total_revenue = Column(Numeric(10, 2), nullable=False)
