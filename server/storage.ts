@@ -206,8 +206,6 @@ export class MemStorage implements IStorage {
         product_name: product.product_name,
         product_code: product.product_code,
         brand_name: product.brand_name,
-        sell_in_quantity: sellInQuantity,
-        sell_through_quantity: sellThroughQuantity,
         turnover_rate: Math.round(turnoverRate * 10) / 10,
         total_revenue: totalRevenue,
         current_stock: currentStock,
@@ -226,11 +224,21 @@ export class MemStorage implements IStorage {
     const totalRevenue = sellThroughs.reduce((sum, st) => sum + parseFloat(st.total_revenue || '0'), 0);
     const averageTurnoverRate = totalSellIn > 0 ? (totalSellThrough / totalSellIn) * 100 : 0;
 
+    const products = Array.from(this.products.values());
+    const totalProducts = products.length;
+    const activeProducts = products.filter(p => p.status === 'Active').length;
+    const totalBrands = new Set(products.map(p => p.brand_name)).size;
+    const totalCategories = new Set(products.map(p => p.category_name)).size;
+    const totalDistributors = new Set(products.map(p => p.distributor_name)).size;
+
     return {
-      total_sell_in: totalSellIn,
-      total_sell_through: totalSellThrough,
       average_turnover_rate: Math.round(averageTurnoverRate * 10) / 10,
       total_revenue: totalRevenue,
+      total_products: totalProducts,
+      active_products: activeProducts,
+      total_brands: totalBrands,
+      total_categories: totalCategories,
+      total_distributors: totalDistributors,
     };
   }
 }

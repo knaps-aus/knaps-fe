@@ -657,18 +657,14 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
               <CardTitle>Sales Performance</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">{productAnalytics.sell_in_quantity}</div>
-                  <div className="text-sm text-gray-500">Total Sell-In (This Month)</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-gray-900">{productAnalytics.sell_through_quantity}</div>
-                  <div className="text-sm text-gray-500">Total Sell-Through (This Month)</div>
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="text-center">
                   <div className="text-2xl font-bold text-success">{productAnalytics.turnover_rate}%</div>
                   <div className="text-sm text-gray-500">Turnover Rate</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">${productAnalytics.total_revenue.toLocaleString()}</div>
+                  <div className="text-sm text-gray-500">Revenue</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold text-gray-900">{productAnalytics.current_stock}</div>
