@@ -38,19 +38,19 @@ export default function Analytics() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-primary">
-                {overallAnalytics?.total_sell_in || 0}
+                {overallAnalytics?.total_products ?? 0}
               </div>
-              <div className="text-sm text-gray-500">Total Sell-In (This Month)</div>
+              <div className="text-sm text-gray-500">Total Products</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-success">
-                {overallAnalytics?.total_sell_through || 0}
+                {overallAnalytics?.active_products ?? 0}
               </div>
-              <div className="text-sm text-gray-500">Total Sell-Through (This Month)</div>
+              <div className="text-sm text-gray-500">Active Products</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-warning">
-                {overallAnalytics?.average_turnover_rate || 0}%
+                {overallAnalytics?.average_turnover_rate ?? 0}%
               </div>
               <div className="text-sm text-gray-500">Average Turnover Rate</div>
             </div>
@@ -80,8 +80,6 @@ export default function Analytics() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>Product</TableHead>
-                    <TableHead>Sell-In</TableHead>
-                    <TableHead>Sell-Through</TableHead>
                     <TableHead>Turnover %</TableHead>
                     <TableHead>Revenue</TableHead>
                     <TableHead>Current Stock</TableHead>
@@ -97,10 +95,8 @@ export default function Analytics() {
                           <div className="text-sm text-gray-600">{product.brand_name}</div>
                         </div>
                       </TableCell>
-                      <TableCell>{product.sell_in_quantity}</TableCell>
-                      <TableCell>{product.sell_through_quantity}</TableCell>
                       <TableCell>
-                        <Badge 
+                        <Badge
                           variant={product.turnover_rate >= 80 ? 'default' : product.turnover_rate >= 50 ? 'secondary' : 'destructive'}
                         >
                           {product.turnover_rate}%

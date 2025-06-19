@@ -87,16 +87,17 @@ export type ProductAnalytics = {
   product_name: string;
   product_code: string;
   brand_name: string;
-  sell_in_quantity: number;
-  sell_through_quantity: number;
   turnover_rate: number;
   total_revenue: number;
   current_stock: number;
 };
 
 export type OverallAnalytics = {
-  total_sell_in: number;
-  total_sell_through: number;
   average_turnover_rate: number;
   total_revenue: number;
+  total_products: number;
+  active_products: number;
+  total_brands: number;
+  total_categories: number;
+  total_distributors: number;
 };
