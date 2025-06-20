@@ -9,9 +9,16 @@ import Analytics from "@/components/analytics";
 import { Store, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function ProductManagement() {
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [addOpen, setAddOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -24,9 +31,6 @@ export default function ProductManagement() {
               <h1 className="text-xl font-semibold text-gray-900">Electronics Franchise ERP</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="relative flex-1 max-w-lg">
-                <ProductSearch onSelectProduct={setSelectedProductId} />
-              </div>
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5 text-gray-400" />
               </Button>
@@ -48,45 +52,52 @@ export default function ProductManagement() {
         {/* Main Content */}
         <main className="flex-1 overflow-hidden">
           <div className="h-full flex flex-col">
-            <Tabs defaultValue="product-details" className="h-full flex flex-col">
+            <Tabs defaultValue="products" className="h-full flex flex-col">
               <div className="bg-white border-b border-gray-200">
-                <TabsList className="grid w-full grid-cols-4 bg-transparent h-auto p-0">
-                  <TabsTrigger 
-                    value="product-details" 
+                <TabsList className="grid w-full grid-cols-2 bg-transparent h-auto p-0">
+                  <TabsTrigger
+                    value="products"
                     className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary rounded-none py-4 px-1 text-sm font-medium"
                   >
-                    Product Details
+                    Products
                   </TabsTrigger>
-                  <TabsTrigger 
-                    value="add-product"
-                    className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary rounded-none py-4 px-1 text-sm font-medium"
-                  >
-                    Add New Product
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="bulk-upload"
-                    className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary rounded-none py-4 px-1 text-sm font-medium"
-                  >
-                    Bulk Upload
-                  </TabsTrigger>
-                  <TabsTrigger 
+                  <TabsTrigger
                     value="analytics"
                     className="border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:text-primary rounded-none py-4 px-1 text-sm font-medium"
                   >
-                    Sales Analytics
+                    Analytics
                   </TabsTrigger>
                 </TabsList>
               </div>
 
               <div className="flex-1 overflow-auto">
-                <TabsContent value="product-details" className="mt-0 h-full">
-                  <ProductDetails productId={selectedProductId} />
-                </TabsContent>
-                <TabsContent value="add-product" className="mt-0 h-full">
-                  <AddProduct />
-                </TabsContent>
-                <TabsContent value="bulk-upload" className="mt-0 h-full">
-                  <BulkUpload />
+                <TabsContent value="products" className="mt-0 h-full">
+                  <div className="flex flex-col items-center p-6">
+                    <div className="w-full max-w-lg mx-auto">
+                      <ProductSearch onSelectProduct={setSelectedProductId} />
+                    </div>
+                    <div className="mt-4 flex gap-4">
+                      <Dialog open={addOpen} onOpenChange={setAddOpen}>
+                        <DialogTrigger asChild>
+                          <Button>Add Product</Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                          <AddProduct />
+                        </DialogContent>
+                      </Dialog>
+                      <Dialog open={bulkOpen} onOpenChange={setBulkOpen}>
+                        <DialogTrigger asChild>
+                          <Button variant="secondary">Bulk Upload</Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                          <BulkUpload />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
+                    <div className="mt-6 w-full">
+                      <ProductDetails productId={selectedProductId} />
+                    </div>
+                  </div>
                 </TabsContent>
                 <TabsContent value="analytics" className="mt-0 h-full">
                   <Analytics />
