@@ -22,6 +22,9 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showAllAttributes, setShowAllAttributes] = useState(false);
   const [formData, setFormData] = useState<Product | null>(null);
+  const [franchiseCalc, setFranchiseCalc] = useState({ sellPrice: '', costPrice: '' });
+  const [mwpCalc, setMwpCalc] = useState({ sellPrice: '', costPrice: '' });
+  const [goCalc, setGoCalc] = useState({ sellPrice: '', costPrice: '' });
   const { toast } = useToast();
 
   const { data: product, isLoading } = useQuery<Product>({
@@ -60,6 +63,9 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   useEffect(() => {
     if (product) {
       setFormData(product);
+      setFranchiseCalc({ sellPrice: product.rrp || '', costPrice: product.trade || '' });
+      setMwpCalc({ sellPrice: product.mwp || '', costPrice: product.trade || '' });
+      setGoCalc({ sellPrice: product.go || '', costPrice: product.trade || '' });
     }
   }, [product]);
 
@@ -100,6 +106,18 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
     setFormData(prev => prev ? { ...prev, [field]: value } : null);
   };
 
+  const handleFranchiseCalcChange = (field: 'sellPrice' | 'costPrice', value: string) => {
+    setFranchiseCalc(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleMwpCalcChange = (field: 'sellPrice' | 'costPrice', value: string) => {
+    setMwpCalc(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGoCalcChange = (field: 'sellPrice' | 'costPrice', value: string) => {
+    setGoCalc(prev => ({ ...prev, [field]: value }));
+  };
+
   const calculateMarginDetails = (sellPriceIncl: string, costPriceIncl: string) => {
     const sellPrice = parseFloat(sellPriceIncl || '0');
     const costPrice = parseFloat(costPriceIncl || '0');
@@ -131,11 +149,11 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   };
 
   // Franchise level calculations (RRP vs Trade)
-  const franchiseMargin = calculateMarginDetails(formData.rrp || '0', formData.trade || '0');
-  
+  const franchiseMargin = calculateMarginDetails(franchiseCalc.sellPrice || '0', franchiseCalc.costPrice || '0');
+
   // Store level calculations (MWP vs Trade, GO vs Trade)
-  const mwpStoreMargin = calculateMarginDetails(formData.mwp || '0', formData.trade || '0');
-  const goStoreMargin = calculateMarginDetails(formData.go || '0', formData.trade || '0');
+  const mwpStoreMargin = calculateMarginDetails(mwpCalc.sellPrice || '0', mwpCalc.costPrice || '0');
+  const goStoreMargin = calculateMarginDetails(goCalc.sellPrice || '0', goCalc.costPrice || '0');
 
   const productAnalytics = analytics?.[0];
 
@@ -559,11 +577,29 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                   <div className="text-center">
                     <div className="text-sm text-blue-600 font-medium">Sell Price (incl.)</div>
-                    <div className="text-xl font-bold text-blue-800">${parseFloat(formData.rrp || '0').toFixed(2)}</div>
+                    <div className="relative mt-1">
+                      <span className="absolute left-2 top-1.5 text-blue-600">$</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={franchiseCalc.sellPrice}
+                        onChange={(e) => handleFranchiseCalcChange('sellPrice', e.target.value)}
+                        className="pl-5 text-center"
+                      />
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-blue-600 font-medium">Net Cost (incl.)</div>
-                    <div className="text-xl font-bold text-blue-800">${parseFloat(formData.trade || '0').toFixed(2)}</div>
+                    <div className="relative mt-1">
+                      <span className="absolute left-2 top-1.5 text-blue-600">$</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={franchiseCalc.costPrice}
+                        onChange={(e) => handleFranchiseCalcChange('costPrice', e.target.value)}
+                        className="pl-5 text-center"
+                      />
+                    </div>
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-blue-600 font-medium">Gross Margin</div>
@@ -592,13 +628,31 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                 <div className="bg-green-50 border border-green-200 rounded-lg p-6">
                   <h4 className="text-lg font-semibold text-green-900 mb-4">Store Level (MWP) - Margin Calculator</h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-green-600 font-medium">Sell Price (incl.):</span>
-                      <span className="font-bold text-green-800">${parseFloat(formData.mwp || '0').toFixed(2)}</span>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1.5 text-green-600">$</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={mwpCalc.sellPrice}
+                          onChange={(e) => handleMwpCalcChange('sellPrice', e.target.value)}
+                          className="pl-5 w-24 text-right"
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-green-600 font-medium">Net Cost (incl.):</span>
-                      <span className="font-bold text-green-800">${parseFloat(formData.trade || '0').toFixed(2)}</span>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1.5 text-green-600">$</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={mwpCalc.costPrice}
+                          onChange={(e) => handleMwpCalcChange('costPrice', e.target.value)}
+                          className="pl-5 w-24 text-right"
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-green-600 font-medium">Gross Margin:</span>
@@ -619,13 +673,31 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                 <div className="bg-orange-50 border border-orange-200 rounded-lg p-6">
                   <h4 className="text-lg font-semibold text-orange-900 mb-4">Store Level (GO) - Margin Calculator</h4>
                   <div className="space-y-3">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-orange-600 font-medium">Sell Price (incl.):</span>
-                      <span className="font-bold text-orange-800">${parseFloat(formData.go || '0').toFixed(2)}</span>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1.5 text-orange-600">$</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={goCalc.sellPrice}
+                          onChange={(e) => handleGoCalcChange('sellPrice', e.target.value)}
+                          className="pl-5 w-24 text-right"
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-orange-600 font-medium">Net Cost (incl.):</span>
-                      <span className="font-bold text-orange-800">${parseFloat(formData.trade || '0').toFixed(2)}</span>
+                      <div className="relative">
+                        <span className="absolute left-2 top-1.5 text-orange-600">$</span>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          value={goCalc.costPrice}
+                          onChange={(e) => handleGoCalcChange('costPrice', e.target.value)}
+                          className="pl-5 w-24 text-right"
+                        />
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-sm text-orange-600 font-medium">Gross Margin:</span>
