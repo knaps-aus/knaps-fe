@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 export default function ProductManagement() {
-  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
 
@@ -74,7 +74,7 @@ export default function ProductManagement() {
                 <TabsContent value="products" className="mt-0 h-full">
                   <div className="flex flex-col items-center p-6">
                     <div className="w-full max-w-lg mx-auto">
-                      <ProductSearch onSelectProduct={setSelectedProductId} />
+                      <ProductSearch onSelectProduct={setSelectedProductCode} />
                     </div>
                     <div className="mt-4 flex gap-4">
                       <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -95,7 +95,7 @@ export default function ProductManagement() {
                       </Dialog>
                     </div>
                     <div className="mt-6 w-full">
-                      <ProductDetails productId={selectedProductId} />
+                      <ProductDetails productCode={selectedProductCode} />
                     </div>
                   </div>
                 </TabsContent>
