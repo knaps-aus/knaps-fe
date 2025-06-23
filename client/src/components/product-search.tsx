@@ -6,7 +6,7 @@ import { Product } from "@shared/schema";
 import { API_BASE_URL } from "@/config";
 
 interface ProductSearchProps {
-  onSelectProduct: (productId: number) => void;
+  onSelectProduct: (productCode: string) => void;
 }
 
 export default function ProductSearch({ onSelectProduct }: ProductSearchProps) {
@@ -31,7 +31,7 @@ export default function ProductSearch({ onSelectProduct }: ProductSearchProps) {
   }, [query, searchResults]);
 
   const handleSelectProduct = (product: Product) => {
-    onSelectProduct(product.id);
+    onSelectProduct(product.product_code);
     setQuery(product.product_name);
     setShowResults(false);
   };

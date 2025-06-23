@@ -15,33 +15,33 @@ import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 
 interface ProductDetailsProps {
-  productId: number | null;
+  productCode: string | null;
 }
 
-export default function ProductDetails({ productId }: ProductDetailsProps) {
+export default function ProductDetails({ productCode }: ProductDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showAllAttributes, setShowAllAttributes] = useState(false);
   const [formData, setFormData] = useState<Product | null>(null);
   const { toast } = useToast();
 
   const { data: product, isLoading } = useQuery<Product>({
-    queryKey: ['/products', productId],
-    enabled: !!productId,
+    queryKey: [`/products/${productCode}`],
+    enabled: !!productCode,
   });
 
   const { data: analytics } = useQuery<ProductAnalytics[]>({
-    queryKey: ['/analytics/products', productId],
-    enabled: !!productId,
+    queryKey: [`/analytics/products/${productCode}`],
+    enabled: !!productCode,
   });
 
   const updateMutation = useMutation({
     mutationFn: async (data: Partial<Product>) => {
-      if (!productId) throw new Error('No product ID');
-      return apiRequest('PUT', `/products/${productId}`, data);
+      if (!productCode) throw new Error('No product code');
+      return apiRequest('PUT', `/products/${productCode}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/products'] });
-      queryClient.invalidateQueries({ queryKey: ['/products', productId] });
+      queryClient.invalidateQueries({ queryKey: [`/products/${productCode}`] });
       setIsEditing(false);
       toast({
         title: "Success",
@@ -69,7 +69,7 @@ export default function ProductDetails({ productId }: ProductDetailsProps) {
     }
   }, [isEditing]);
 
-  if (!productId) {
+  if (!productCode) {
     return (
       <div className="p-6 text-center">
         <p className="text-gray-500">Select a product from the search to view details</p>

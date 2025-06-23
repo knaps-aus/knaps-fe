@@ -5,7 +5,7 @@ import ProductSearch from "@/components/product-search";
 import type { Product } from "@shared/schema";
 
 interface HeaderProps {
-  onProductSelect: (productId: number) => void;
+  onProductSelect: (productCode: string) => void;
 }
 
 export default function Header({ onProductSelect }: HeaderProps) {
@@ -21,7 +21,7 @@ export default function Header({ onProductSelect }: HeaderProps) {
           </div>
           <div className="flex items-center space-x-4">
             <div className="relative flex-1 max-w-lg">
-              <ProductSearch onProductSelect={onProductSelect} />
+              <ProductSearch onSelectProduct={onProductSelect} />
             </div>
             <button className="p-2 text-gray-400 hover:text-gray-600">
               <Bell className="text-lg" />
