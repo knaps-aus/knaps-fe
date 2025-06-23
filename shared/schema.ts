@@ -100,3 +100,35 @@ export type OverallAnalytics = {
   average_turnover_rate: number;
   total_revenue: number;
 };
+
+// Deals types
+export type DealType =
+  | 'sell_in'
+  | 'sell_through'
+  | 'price_protection'
+  | 'off_invoice_discount';
+
+export type DealAmountType = 'quantity' | 'value';
+
+export type DealProvider = 'head office' | 'distributor' | 'narta';
+
+export type Deal = {
+  deal_type: DealType;
+  product_id: number;
+  product_uuid: number;
+  deal_id: number;
+  deal_uuid: string;
+  amount_type: DealAmountType;
+  amount: string;
+  start_date: string;
+  end_date: string;
+  yeamonth_partition: string; // YYYY-MM
+  provider: DealProvider;
+  store_amount?: string | null;
+  head_office_amount?: string | null;
+  trade_price?: string | null;
+  created_at?: string | null;
+  created_by?: string | null;
+  updated_at?: string | null;
+  updated_by?: string | null;
+};
