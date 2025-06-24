@@ -1,6 +1,11 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Edit } from "lucide-react";
+import AddDeal from "@/components/add-deal";
 import { Deal } from "@shared/schema";
 
 interface DealListProps {
@@ -8,6 +13,8 @@ interface DealListProps {
 }
 
 export default function DealList({ productId }: DealListProps) {
+  const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+
   const { data: deals = [], isLoading } = useQuery<Deal[]>({
     queryKey: ['/deals', productId],
     enabled: !!productId,
@@ -41,27 +48,44 @@ export default function DealList({ productId }: DealListProps) {
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Start</TableHead>
-                <TableHead>End</TableHead>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Type</TableHead>
+              <TableHead>Amount</TableHead>
+              <TableHead>Start</TableHead>
+              <TableHead>End</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {deals.map((deal) => (
+              <TableRow key={deal.deal_id}>
+                <TableCell>{deal.deal_type}</TableCell>
+                <TableCell>{deal.amount}</TableCell>
+                <TableCell>{deal.start_date}</TableCell>
+                <TableCell>{deal.end_date}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setEditingDeal(deal)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                </TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {deals.map((deal) => (
-                <TableRow key={deal.deal_id}>
-                  <TableCell>{deal.deal_type}</TableCell>
-                  <TableCell>{deal.amount}</TableCell>
-                  <TableCell>{deal.start_date}</TableCell>
-                  <TableCell>{deal.end_date}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
       </Card>
+      <Dialog open={!!editingDeal} onOpenChange={(open) => !open && setEditingDeal(null)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          {editingDeal && (
+            <AddDeal deal={editingDeal} onClose={() => setEditingDeal(null)} />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

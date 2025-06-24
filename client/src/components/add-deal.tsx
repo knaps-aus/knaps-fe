@@ -8,10 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Plus } from "lucide-react";
+import { Plus, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import type { Deal } from "@shared/schema";
 
 const insertDealSchema = z.object({
   product_id: z.number().int(),
@@ -29,54 +30,85 @@ const insertDealSchema = z.object({
 
 export type InsertDeal = z.infer<typeof insertDealSchema>;
 
-export default function AddDeal() {
+interface AddDealProps {
+  deal?: Deal;
+  onClose?: () => void;
+}
+
+export default function AddDeal({ deal, onClose }: AddDealProps) {
+  const isEditing = !!deal;
   const { toast } = useToast();
 
   const form = useForm<InsertDeal>({
     resolver: zodResolver(insertDealSchema),
-    defaultValues: {
-      product_id: 0,
-      deal_type: "sell_in",
-      amount_type: "quantity",
-      amount: "",
-      start_date: "",
-      end_date: "",
-      yeamonth_partition: "",
-      provider: "head office",
-      store_amount: undefined,
-      head_office_amount: undefined,
-      trade_price: undefined,
-    },
+    defaultValues: isEditing
+      ? {
+          product_id: deal!.product_id,
+          deal_type: deal!.deal_type,
+          amount_type: deal!.amount_type,
+          amount: deal!.amount,
+          start_date: deal!.start_date,
+          end_date: deal!.end_date,
+          yeamonth_partition: deal!.yeamonth_partition,
+          provider: deal!.provider,
+          store_amount: deal!.store_amount || undefined,
+          head_office_amount: deal!.head_office_amount || undefined,
+          trade_price: deal!.trade_price || undefined,
+        }
+      : {
+          product_id: 0,
+          deal_type: "sell_in",
+          amount_type: "quantity",
+          amount: "",
+          start_date: "",
+          end_date: "",
+          yeamonth_partition: "",
+          provider: "head office",
+          store_amount: undefined,
+          head_office_amount: undefined,
+          trade_price: undefined,
+        },
   });
 
-  const createMutation = useMutation({
+  const mutation = useMutation({
     mutationFn: async (data: InsertDeal) => {
+      if (isEditing) {
+        const res = await apiRequest("PUT", `/deals/${deal!.deal_uuid}`, data);
+        return res.json();
+      }
       const res = await apiRequest("POST", "/deals", data);
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/deals"] });
-      form.reset();
-      toast({ title: "Success", description: "Deal created successfully" });
+      if (isEditing) {
+        onClose && onClose();
+        toast({ title: "Success", description: "Deal updated successfully" });
+      } else {
+        form.reset();
+        toast({ title: "Success", description: "Deal created successfully" });
+      }
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to create deal",
+        description:
+          error.message ||
+          (isEditing ? "Failed to update deal" : "Failed to create deal"),
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: InsertDeal) => {
-    createMutation.mutate(data);
+    mutation.mutate(data);
   };
 
   return (
     <div className="p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Add Deal</CardTitle>
+          <CardTitle>{isEditing ? 'Edit Deal' : 'Add Deal'}</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -254,12 +286,26 @@ export default function AddDeal() {
                 />
               </div>
               <div className="flex justify-end space-x-3">
-                <Button type="button" variant="outline" onClick={() => form.reset()}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => (isEditing ? onClose && onClose() : form.reset())}
+                >
                   Cancel
                 </Button>
-                <Button type="submit" disabled={createMutation.isPending}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  {createMutation.isPending ? "Adding..." : "Add Deal"}
+                <Button type="submit" disabled={mutation.isPending}>
+                  {isEditing ? (
+                    <Save className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Plus className="h-4 w-4 mr-2" />
+                  )}
+                  {mutation.isPending
+                    ? isEditing
+                      ? "Saving..."
+                      : "Adding..."
+                    : isEditing
+                    ? "Save Deal"
+                    : "Add Deal"}
                 </Button>
               </div>
             </form>
