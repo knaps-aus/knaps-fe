@@ -234,6 +234,12 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                     <Edit className="h-4 w-4 mr-2" />
                     {isEditing ? 'Cancel' : 'Edit Product'}
                   </Button>
+                  {isEditing && (
+                    <Button type="submit" size="sm" disabled={updateMutation.isPending}>
+                      <Save className="h-4 w-4 mr-2" />
+                      {updateMutation.isPending ? 'Saving...' : 'Save'}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
