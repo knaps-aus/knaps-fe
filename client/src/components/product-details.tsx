@@ -22,6 +22,7 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [showAllAttributes, setShowAllAttributes] = useState(false);
   const [formData, setFormData] = useState<Product | null>(null);
+  const [taxRate, setTaxRate] = useState('10');
   const [franchiseCalc, setFranchiseCalc] = useState({ sellPrice: '', costPrice: '' });
   const [mwpCalc, setMwpCalc] = useState({ sellPrice: '', costPrice: '' });
   const [goCalc, setGoCalc] = useState({ sellPrice: '', costPrice: '' });
@@ -106,32 +107,66 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
     setFormData(prev => prev ? { ...prev, [field]: value } : null);
   };
 
-  const handleFranchiseCalcChange = (field: 'sellPrice' | 'costPrice', value: string) => {
-    setFranchiseCalc(prev => ({ ...prev, [field]: value }));
+  type CalcField = 'sellPrice' | 'costPrice' | 'margin' | 'markup' | 'profit';
+
+  const updateCalcState = (
+    prev: { sellPrice: string; costPrice: string },
+    field: CalcField,
+    value: string
+  ) => {
+    let sell = parseFloat(prev.sellPrice || '0');
+    const cost = parseFloat(prev.costPrice || '0');
+
+    if (field === 'sellPrice') {
+      sell = parseFloat(value || '0');
+      return { ...prev, sellPrice: value };
+    }
+
+    if (field === 'costPrice') {
+      return { ...prev, costPrice: value };
+    }
+
+    const num = parseFloat(value || '0');
+    if (field === 'margin') {
+      sell = cost === 0 ? 0 : cost / (1 - num / 100);
+    } else if (field === 'markup') {
+      sell = cost * (1 + num / 100);
+    } else if (field === 'profit') {
+      sell = cost + num;
+    }
+
+    return { ...prev, sellPrice: sell.toFixed(2) };
   };
 
-  const handleMwpCalcChange = (field: 'sellPrice' | 'costPrice', value: string) => {
-    setMwpCalc(prev => ({ ...prev, [field]: value }));
+  const handleFranchiseCalcChange = (field: CalcField, value: string) => {
+    setFranchiseCalc(prev => updateCalcState(prev, field, value));
   };
 
-  const handleGoCalcChange = (field: 'sellPrice' | 'costPrice', value: string) => {
-    setGoCalc(prev => ({ ...prev, [field]: value }));
+  const handleMwpCalcChange = (field: CalcField, value: string) => {
+    setMwpCalc(prev => updateCalcState(prev, field, value));
   };
 
-  const calculateMarginDetails = (sellPriceIncl: string, costPriceIncl: string) => {
+  const handleGoCalcChange = (field: CalcField, value: string) => {
+    setGoCalc(prev => updateCalcState(prev, field, value));
+  };
+
+  const calculateMarginDetails = (
+    sellPriceIncl: string,
+    costPriceIncl: string,
+    tax: string
+  ) => {
     const sellPrice = parseFloat(sellPriceIncl || '0');
     const costPrice = parseFloat(costPriceIncl || '0');
-    
-    if (costPrice === 0) return { 
-      grossMarginPercentage: 0, 
-      markupPercentage: 0, 
+    const gstRate = parseFloat(tax || '0') / 100;
+
+    if (costPrice === 0) return {
+      grossMarginPercentage: 0,
+      markupPercentage: 0,
       grossProfit: 0,
       sellPriceExcl: 0,
       costPriceExcl: 0
     };
 
-    // GST calculations (10% GST)
-    const gstRate = 0.10;
     const sellPriceExcl = sellPrice / (1 + gstRate);
     const costPriceExcl = costPrice / (1 + gstRate);
     
@@ -149,11 +184,11 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   };
 
   // Franchise level calculations (RRP vs Trade)
-  const franchiseMargin = calculateMarginDetails(franchiseCalc.sellPrice || '0', franchiseCalc.costPrice || '0');
+  const franchiseMargin = calculateMarginDetails(franchiseCalc.sellPrice || '0', franchiseCalc.costPrice || '0', taxRate);
 
   // Store level calculations (MWP vs Trade, GO vs Trade)
-  const mwpStoreMargin = calculateMarginDetails(mwpCalc.sellPrice || '0', mwpCalc.costPrice || '0');
-  const goStoreMargin = calculateMarginDetails(goCalc.sellPrice || '0', goCalc.costPrice || '0');
+  const mwpStoreMargin = calculateMarginDetails(mwpCalc.sellPrice || '0', mwpCalc.costPrice || '0', taxRate);
+  const goStoreMargin = calculateMarginDetails(goCalc.sellPrice || '0', goCalc.costPrice || '0', taxRate);
 
   const productAnalytics = analytics?.[0];
 
@@ -506,7 +541,7 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
             <CardTitle>Pricing & Margins</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               <div>
                 <Label htmlFor="trade">Trade Price</Label>
                 <div className="relative">
@@ -567,6 +602,17 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                   />
                 </div>
               </div>
+              <div>
+                <Label htmlFor="taxRate">Tax %</Label>
+                <Input
+                  id="taxRate"
+                  type="number"
+                  step="0.01"
+                  value={taxRate}
+                  onChange={(e) => setTaxRate(e.target.value)}
+                  className="text-right"
+                />
+              </div>
             </div>
             
             {/* Enhanced Margin Calculators */}
@@ -603,15 +649,33 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-blue-600 font-medium">Gross Margin</div>
-                    <div className="text-xl font-bold text-blue-800">{franchiseMargin.grossMarginPercentage}%</div>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={franchiseMargin.grossMarginPercentage}
+                      onChange={(e) => handleFranchiseCalcChange('margin', e.target.value)}
+                      className="text-center"
+                    />
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-blue-600 font-medium">Markup</div>
-                    <div className="text-xl font-bold text-blue-800">{franchiseMargin.markupPercentage}%</div>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={franchiseMargin.markupPercentage}
+                      onChange={(e) => handleFranchiseCalcChange('markup', e.target.value)}
+                      className="text-center"
+                    />
                   </div>
                   <div className="text-center">
                     <div className="text-sm text-blue-600 font-medium">Gross Profit (incl.)</div>
-                    <div className="text-xl font-bold text-blue-800">${franchiseMargin.grossProfit}</div>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={franchiseMargin.grossProfit}
+                      onChange={(e) => handleFranchiseCalcChange('profit', e.target.value)}
+                      className="text-center"
+                    />
                   </div>
                 </div>
                 <div className="mt-4 pt-4 border-t border-blue-200">
@@ -654,17 +718,35 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                         />
                       </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-green-600 font-medium">Gross Margin:</span>
-                      <span className="font-bold text-green-800">{mwpStoreMargin.grossMarginPercentage}%</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={mwpStoreMargin.grossMarginPercentage}
+                        onChange={(e) => handleMwpCalcChange('margin', e.target.value)}
+                        className="w-20 text-right"
+                      />
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-green-600 font-medium">Markup:</span>
-                      <span className="font-bold text-green-800">{mwpStoreMargin.markupPercentage}%</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={mwpStoreMargin.markupPercentage}
+                        onChange={(e) => handleMwpCalcChange('markup', e.target.value)}
+                        className="w-20 text-right"
+                      />
                     </div>
-                    <div className="flex justify-between border-t border-green-200 pt-2">
+                    <div className="flex justify-between items-center border-t border-green-200 pt-2">
                       <span className="text-sm text-green-600 font-medium">Gross Profit (incl.):</span>
-                      <span className="font-bold text-green-800">${mwpStoreMargin.grossProfit}</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={mwpStoreMargin.grossProfit}
+                        onChange={(e) => handleMwpCalcChange('profit', e.target.value)}
+                        className="w-20 text-right"
+                      />
                     </div>
                   </div>
                 </div>
@@ -699,17 +781,35 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                         />
                       </div>
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-orange-600 font-medium">Gross Margin:</span>
-                      <span className="font-bold text-orange-800">{goStoreMargin.grossMarginPercentage}%</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={goStoreMargin.grossMarginPercentage}
+                        onChange={(e) => handleGoCalcChange('margin', e.target.value)}
+                        className="w-20 text-right"
+                      />
                     </div>
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-sm text-orange-600 font-medium">Markup:</span>
-                      <span className="font-bold text-orange-800">{goStoreMargin.markupPercentage}%</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={goStoreMargin.markupPercentage}
+                        onChange={(e) => handleGoCalcChange('markup', e.target.value)}
+                        className="w-20 text-right"
+                      />
                     </div>
-                    <div className="flex justify-between border-t border-orange-200 pt-2">
+                    <div className="flex justify-between items-center border-t border-orange-200 pt-2">
                       <span className="text-sm text-orange-600 font-medium">Gross Profit (incl.):</span>
-                      <span className="font-bold text-orange-800">${goStoreMargin.grossProfit}</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={goStoreMargin.grossProfit}
+                        onChange={(e) => handleGoCalcChange('profit', e.target.value)}
+                        className="w-20 text-right"
+                      />
                     </div>
                   </div>
                 </div>
