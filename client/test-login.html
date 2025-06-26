@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Keycloak Login Test</title>
+</head>
+<body>
+    <h1>Keycloak Login Test</h1>
+    <button onclick="testLogin()">Test Login</button>
+    <button onclick="clearStorage()">Clear Storage</button>
+    <div id="status"></div>
+
+    <script>
+        function testLogin() {
+            const keycloakUrl = 'http://localhost:8080';
+            const realm = 'master';
+            const clientId = 'react-app';
+            const redirectUri = encodeURIComponent('http://localhost:3000/');
+            const responseType = 'code';
+            const scope = 'openid';
+            
+            const loginUrl = `${keycloakUrl}/realms/${realm}/protocol/openid-connect/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=${responseType}&scope=${scope}`;
+            
+            document.getElementById('status').innerHTML = 'Redirecting to: ' + loginUrl;
+            console.log('Login URL:', loginUrl);
+            
+            window.location.href = loginUrl;
+        }
+
+        function clearStorage() {
+            localStorage.clear();
+            sessionStorage.clear();
+            document.getElementById('status').innerHTML = 'Storage cleared';
+        }
+    </script>
+</body>
+</html> 

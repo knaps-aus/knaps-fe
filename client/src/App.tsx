@@ -7,7 +7,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ProductManagement from "@/pages/product-management";
 import NotFound from "@/pages/not-found";
-import { keycloak } from "./keycloak";
+import { keycloak, keycloakConfig } from "./keycloak";
+import { clearKeycloakCache } from "./lib/keycloak-cache-clear";
+import { KeycloakDebug } from "./components/keycloak-debug";
 
 function Router() {
   return (
@@ -20,21 +22,38 @@ function Router() {
 }
 
 function App() {
-  // Initialize Keycloak on mount and set up token refresh
+  // Clear Keycloak cache on app initialization
   useEffect(() => {
-    keycloak.init({ onLoad: "login-required", checkLoginIframe: false });
-    const refreshInterval = setInterval(() => {
-      keycloak.updateToken(70);
-    }, 60000);
-    return () => clearInterval(refreshInterval);
+    console.log('App initializing...');
+    clearKeycloakCache();
   }, []);
 
+  const handleKeycloakEvent = (event: any, error: any) => {
+    console.log('Keycloak event:', event, error);
+  };
+
+  const handleKeycloakTokens = (tokens: any) => {
+    console.log('Keycloak tokens received:', tokens);
+  };
+
   return (
-    <ReactKeycloakProvider authClient={keycloak} initOptions={{ onLoad: "login-required", checkLoginIframe: false }}>
+    <ReactKeycloakProvider 
+      authClient={keycloak} 
+      initOptions={keycloakConfig}
+      onEvent={handleKeycloakEvent}
+      onTokens={handleKeycloakTokens}
+    >
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
-          <Router />
+          <div className="flex">
+            <div className="flex-1">
+              <Router />
+            </div>
+            <div className="p-4">
+              <KeycloakDebug />
+            </div>
+          </div>
         </TooltipProvider>
       </QueryClientProvider>
     </ReactKeycloakProvider>
