@@ -45,3 +45,4 @@ keycloak.onAuthRefreshError = () => {
 keycloak.onAuthLogout = () => {
   console.log('User logged out');
 };
+
