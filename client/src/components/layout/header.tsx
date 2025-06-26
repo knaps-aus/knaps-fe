@@ -1,8 +1,6 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { Store, Search, Bell } from "lucide-react";
 import ProductSearch from "@/components/product-search";
-import type { Product } from "@shared/schema";
+import UserMenu from "@/components/user-menu";
 
 interface HeaderProps {
   onProductSelect: (productCode: string) => void;
@@ -26,14 +24,7 @@ export default function Header({ onProductSelect }: HeaderProps) {
             <button className="p-2 text-gray-400 hover:text-gray-600">
               <Bell className="text-lg" />
             </button>
-            <div className="flex items-center space-x-2">
-              <img
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=32"
-                alt="User avatar"
-                className="w-8 h-8 rounded-full"
-              />
-              <span className="text-sm text-gray-700">John Manager</span>
-            </div>
+            <UserMenu />
           </div>
         </div>
       </div>
