@@ -8,7 +8,7 @@ channel = "stable-24_05"
 [deployment]
 deploymentTarget = "autoscale"
 build = ["bash", "-lc", "pip install -r requirements.txt && npm run build"]
-run = ["node", "server/index.js"]
+run = ["node", "dist/index.js"]
 
 [[ports]]
 localPort = 3000
