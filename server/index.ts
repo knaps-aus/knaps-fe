@@ -1,23 +1,15 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { ReactKeycloakProvider } from "@react-keycloak/web";
-import { keycloak } from "./keycloak";
-ReactDOM.render(
-  <ReactKeycloakProvider authClient={keycloak}>
-    <App />
-  </ReactKeycloakProvider>,
-  document.getElementById("root")
-);
 
-
-const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.join(__dirname, '..', 'dist', 'public');
 
+const app = express();
+
 app.use(express.static(publicDir));
 
-app.get('*', (req, res) => {
+app.get('*', (_req, res) => {
   res.sendFile(path.join(publicDir, 'index.html'));
 });
 
