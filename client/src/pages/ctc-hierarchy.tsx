@@ -3,6 +3,13 @@ import UserMenu from "@/components/user-menu";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { Store, Bell } from "lucide-react";
 
 interface CTCCategoryHierarchy {
@@ -61,27 +68,39 @@ export default function CTCHierarchyPage() {
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            classes.map((cls) => (
-              <Card key={cls.id} className="">
-                <CardHeader>
-                  <CardTitle>{cls.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {cls.types.map((type) => (
-                    <div key={type.id}>
-                      <div className="font-semibold text-gray-700">{type.name}</div>
-                      <ul className="ml-4 list-disc">
-                        {type.categories.map((cat) => (
-                          <li key={cat.id} className="text-gray-600">
-                            {cat.name}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-            ))
+            <Accordion type="multiple" className="space-y-4">
+              {classes.map((cls) => (
+                <AccordionItem value={`class-${cls.id}`} key={cls.id}>
+                  <Card>
+                    <AccordionTrigger className="px-4 py-2 text-lg font-semibold text-left">
+                      {cls.name}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <CardContent className="space-y-2">
+                        <Accordion type="multiple" className="space-y-2">
+                          {cls.types.map((type) => (
+                            <AccordionItem value={`type-${type.id}`} key={type.id}>
+                              <AccordionTrigger className="px-4 py-2 bg-gray-50 rounded text-left font-medium">
+                                {type.name}
+                              </AccordionTrigger>
+                              <AccordionContent>
+                                <div className="flex flex-wrap gap-2 p-2">
+                                  {type.categories.map((cat) => (
+                                    <Badge key={cat.id} variant="secondary" className="whitespace-nowrap">
+                                      {cat.name}
+                                    </Badge>
+                                  ))}
+                                </div>
+                              </AccordionContent>
+                            </AccordionItem>
+                          ))}
+                        </Accordion>
+                      </CardContent>
+                    </AccordionContent>
+                  </Card>
+                </AccordionItem>
+              ))}
+            </Accordion>
           )}
         </main>
       </div>
