@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ProductManagement from "@/pages/product-management";
 import DistributorsPage from "@/pages/distributors";
+import CTCHierarchyPage from "@/pages/ctc-hierarchy";
 import NotFound from "@/pages/not-found";
 import { keycloak, keycloakConfig } from "./keycloak";
 
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/" component={ProductManagement} />
       <Route path="/products" component={ProductManagement} />
       <Route path="/distributors" component={DistributorsPage} />
+      <Route path="/ctc" component={CTCHierarchyPage} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -1,10 +1,11 @@
-import { Box, ChartLine, Warehouse, Users, Settings } from "lucide-react";
+import { Box, Boxes, ChartLine, Warehouse, Users, Settings } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: 'Product Management', href: '/products', icon: Box },
   { name: 'Distributors & Brands', href: '/distributors', icon: Warehouse },
+  { name: 'CTC Hierarchy', href: '/ctc', icon: Boxes },
   { name: 'Sales Analytics', href: '#', icon: ChartLine },
   { name: 'Inventory', href: '#', icon: Warehouse },
   { name: 'Customers', href: '#', icon: Users },
