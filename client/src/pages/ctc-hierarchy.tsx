@@ -9,7 +9,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Badge } from "@/components/ui/badge";
 import { Store, Bell } from "lucide-react";
 
 interface CTCCategoryHierarchy {
@@ -84,13 +83,13 @@ export default function CTCHierarchyPage() {
                                 {type.name}
                               </AccordionTrigger>
                               <AccordionContent>
-                                <div className="flex flex-wrap gap-2 p-2">
+                                <ul className="list-disc pl-6 space-y-1 p-2">
                                   {type.categories.map((cat) => (
-                                    <Badge key={cat.id} variant="secondary" className="whitespace-nowrap">
+                                    <li key={cat.id} className="text-sm text-gray-700">
                                       {cat.name}
-                                    </Badge>
+                                    </li>
                                   ))}
-                                </div>
+                                </ul>
                               </AccordionContent>
                             </AccordionItem>
                           ))}
