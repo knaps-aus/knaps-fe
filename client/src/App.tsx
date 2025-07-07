@@ -6,6 +6,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import ProductManagement from "@/pages/product-management";
+import DistributorsPage from "@/pages/distributors";
 import NotFound from "@/pages/not-found";
 import { keycloak, keycloakConfig } from "./keycloak";
 
@@ -14,6 +15,7 @@ function Router() {
     <Switch>
       <Route path="/" component={ProductManagement} />
       <Route path="/products" component={ProductManagement} />
+      <Route path="/distributors" component={DistributorsPage} />
       <Route component={NotFound} />
     </Switch>
   );

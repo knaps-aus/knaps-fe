@@ -132,3 +132,50 @@ export type Deal = {
   updated_at?: string | null;
   updated_by?: string | null;
 };
+
+// Distributor and Brand types
+export type Distributor = {
+  id: number;
+  uuid: string;
+  code: string;
+  name: string;
+  store: string;
+  edi: boolean;
+  auto_claim_over_charge: boolean;
+  is_central: boolean;
+  icon_owner?: string | null;
+  gln?: string | null;
+  business_number?: string | null;
+  accounting_date?: number | null;
+  web_portal_url?: string | null;
+  pp_claim_from?: string | null;
+  fis_minimum_order?: string | null;
+  default_extended_credits_code?: string | null;
+  default_extended_credits_name?: string | null;
+  active: boolean;
+  modified_by: string;
+  modified: string;
+  created_by: string;
+  created: string;
+  deleted_by?: string | null;
+  deleted?: string | null;
+};
+
+export type Brand = {
+  id: number;
+  uuid: string;
+  code: string;
+  name: string;
+  store: string;
+  distributor_id: number;
+  is_hof_pref: boolean;
+  comments?: string | null;
+  narta_rept: boolean;
+  active: boolean;
+  modified_by: string;
+  modified: string;
+  created_by: string;
+  created: string;
+  deleted_by?: string | null;
+  deleted?: string | null;
+};
