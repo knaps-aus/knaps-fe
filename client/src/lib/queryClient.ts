@@ -34,7 +34,10 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const res = await fetch(API_BASE_URL + (queryKey[0] as string), {
+    // Construct the full URL by joining all query key parts
+    const url = Array.isArray(queryKey) ? queryKey.join('') : queryKey[0];
+    
+    const res = await fetch(API_BASE_URL + url, {
       credentials: "include",
       headers: authHeaders(),
     });

@@ -38,12 +38,12 @@ export default function DistributorList() {
 
   const [distQuery, setDistQuery] = useState("");
   const [brandQuery, setBrandQuery] = useState("");
-  const { data: distSearch = [] } = useQuery<Distributor[]>({
-    queryKey: ["/distributors/search", distQuery],
+  const { data: distSearch = [], isLoading: distSearchLoading } = useQuery<Distributor[]>({
+    queryKey: ["/distributors/search?q=", distQuery],
     enabled: distQuery.length >= 2,
   });
-  const { data: brandSearch = [] } = useQuery<Brand[]>({
-    queryKey: ["/brands/search", brandQuery],
+  const { data: brandSearch = [], isLoading: brandSearchLoading } = useQuery<Brand[]>({
+    queryKey: ["/brands/search?q=", brandQuery],
     enabled: brandQuery.length >= 2,
   });
 
@@ -128,16 +128,30 @@ export default function DistributorList() {
         </CardHeader>
         <CardContent>
           <div className="flex gap-4 mb-4">
-            <Input
-              placeholder="Search distributors..."
-              value={distQuery}
-              onChange={(e) => setDistQuery(e.target.value)}
-            />
-            <Input
-              placeholder="Search brands..."
-              value={brandQuery}
-              onChange={(e) => setBrandQuery(e.target.value)}
-            />
+            <div className="flex-1">
+              <Input
+                placeholder="Search distributors..."
+                value={distQuery}
+                onChange={(e) => setDistQuery(e.target.value)}
+              />
+              {distQuery.length >= 2 && (
+                <div className="text-xs text-gray-500 mt-1">
+                  {distSearchLoading ? "Searching..." : `Found ${distSearch.length} results`}
+                </div>
+              )}
+            </div>
+            <div className="flex-1">
+              <Input
+                placeholder="Search brands..."
+                value={brandQuery}
+                onChange={(e) => setBrandQuery(e.target.value)}
+              />
+              {brandQuery.length >= 2 && (
+                <div className="text-xs text-gray-500 mt-1">
+                  {brandSearchLoading ? "Searching..." : `Found ${brandSearch.length} results`}
+                </div>
+              )}
+            </div>
           </div>
           <div className="overflow-x-auto">
             <Table>
