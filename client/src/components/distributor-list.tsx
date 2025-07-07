@@ -14,6 +14,14 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Edit, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -197,7 +205,7 @@ export default function DistributorList() {
           open={!!selected}
           onOpenChange={(open) => !open && setSelected(null)}
         >
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{selected.name}</CardTitle>
@@ -225,16 +233,10 @@ export default function DistributorList() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-medium">Store</label>
-                    <Input
-                      value={distForm.store}
-                      onChange={(e) =>
-                        setDistForm({ ...distForm, store: e.target.value })
-                      }
-                      disabled={!editingDist}
-                    />
+                    <label className="text-sm font-medium">Code</label>
+                    <Input value={distForm.code} disabled readOnly />
                   </div>
                   <div>
                     <label className="text-sm font-medium">Name</label>
@@ -258,6 +260,151 @@ export default function DistributorList() {
                       }
                       disabled={!editingDist}
                     />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">GLN</label>
+                    <Input
+                      value={distForm.gln || ""}
+                      onChange={(e) =>
+                        setDistForm({ ...distForm, gln: e.target.value })
+                      }
+                      disabled={!editingDist}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Purchaser</label>
+                    {editingDist ? (
+                      <Select
+                        value={distForm.store}
+                        onValueChange={(v) =>
+                          setDistForm({ ...distForm, store: v })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select purchaser" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Purchaser A">Purchaser A</SelectItem>
+                          <SelectItem value="Purchaser B">Purchaser B</SelectItem>
+                          <SelectItem value="Purchaser C">Purchaser C</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input value={distForm.store} disabled />
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Price Protection Claim From</label>
+                    <Input
+                      type="date"
+                      value={distForm.pp_claim_from || ""}
+                      onChange={(e) =>
+                        setDistForm({
+                          ...distForm,
+                          pp_claim_from: e.target.value,
+                        })
+                      }
+                      disabled={!editingDist}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Accounting End of Month (Day)</label>
+                    <Input
+                      type="number"
+                      value={distForm.accounting_date ?? ""}
+                      onChange={(e) =>
+                        setDistForm({
+                          ...distForm,
+                          accounting_date: e.target.value ? Number(e.target.value) : null,
+                        })
+                      }
+                      disabled={!editingDist}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Default Extended Credit Days</label>
+                    {editingDist ? (
+                      <Select
+                        value={distForm.default_extended_credits_code || ""}
+                        onValueChange={(v) =>
+                          setDistForm({
+                            ...distForm,
+                            default_extended_credits_code: v,
+                            default_extended_credits_name: `${v} Days`,
+                          })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select days" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="30">30 Days</SelectItem>
+                          <SelectItem value="60">60 Days</SelectItem>
+                          <SelectItem value="90">90 Days</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Input
+                        value={distForm.default_extended_credits_name || ""}
+                        disabled
+                      />
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">FIS Minimum Order ($)</label>
+                    <Input
+                      type="number"
+                      value={distForm.fis_minimum_order || ""}
+                      onChange={(e) =>
+                        setDistForm({
+                          ...distForm,
+                          fis_minimum_order: e.target.value,
+                        })
+                      }
+                      disabled={!editingDist}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium">Web Portal URL</label>
+                    <Input
+                      value={distForm.web_portal_url || ""}
+                      onChange={(e) =>
+                        setDistForm({
+                          ...distForm,
+                          web_portal_url: e.target.value,
+                        })
+                      }
+                      disabled={!editingDist}
+                    />
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="edi"
+                      checked={distForm.edi}
+                      onCheckedChange={(v) =>
+                        setDistForm({ ...distForm, edi: v as boolean })
+                      }
+                      disabled={!editingDist}
+                    />
+                    <label htmlFor="edi" className="text-sm font-medium">
+                      Uses EDI
+                    </label>
+                  </div>
+                  <div className="flex items-center space-x-2 pt-6">
+                    <Switch
+                      id="auto-claim"
+                      checked={distForm.auto_claim_over_charge}
+                      onCheckedChange={(v) =>
+                        setDistForm({
+                          ...distForm,
+                          auto_claim_over_charge: v as boolean,
+                        })
+                      }
+                      disabled={!editingDist}
+                    />
+                    <label htmlFor="auto-claim" className="text-sm font-medium">
+                      Auto Claim Over Charge
+                    </label>
                   </div>
                   <div className="flex items-center space-x-2 pt-6">
                     <Checkbox
