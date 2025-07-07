@@ -84,15 +84,16 @@ export default function CTCHierarchyPage() {
                                 {type.name}
                               </AccordionTrigger>
                               <AccordionContent>
-                                <ul className="list-disc pl-6 space-y-1 p-2">
+                                <div className="space-y-1 p-2">
                                   {type.categories.map((cat) => (
-                                    <li key={cat.id} className="text-sm text-gray-700">
-                                      <Badge variant="secondary" className="bg-gray-100">
-                                        {cat.name}
-                                      </Badge>
-                                    </li>
+                                    <div
+                                      key={cat.id}
+                                      className="text-sm text-gray-700 bg-gray-100 rounded px-2 py-1"
+                                    >
+                                      {cat.name}
+                                    </div>
                                   ))}
-                                </ul>
+                                </div>
                               </AccordionContent>
                             </AccordionItem>
                           ))}
