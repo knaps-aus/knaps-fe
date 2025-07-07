@@ -1,7 +1,7 @@
 import Sidebar from "@/components/sidebar";
 import UserMenu from "@/components/user-menu";
 import { useQuery } from "@tanstack/react-query";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -9,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Badge } from "@/components/ui/badge";
 import { Store, Bell } from "lucide-react";
 
 interface CTCCategoryHierarchy {
@@ -86,7 +87,9 @@ export default function CTCHierarchyPage() {
                                 <ul className="list-disc pl-6 space-y-1 p-2">
                                   {type.categories.map((cat) => (
                                     <li key={cat.id} className="text-sm text-gray-700">
-                                      {cat.name}
+                                      <Badge variant="secondary" className="bg-gray-100">
+                                        {cat.name}
+                                      </Badge>
                                     </li>
                                   ))}
                                 </ul>
