@@ -18,6 +18,7 @@ import { Edit, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Distributor, Brand } from "@shared/schema";
+import { useEffect } from "react";
 
 export default function DistributorList() {
   const { data: distributors = [], isLoading } = useQuery<Distributor[]>({
@@ -26,6 +27,20 @@ export default function DistributorList() {
   const { data: brands = [] } = useQuery<Brand[]>({
     queryKey: ["/brands"],
   });
+
+  const [distQuery, setDistQuery] = useState("");
+  const [brandQuery, setBrandQuery] = useState("");
+  const { data: distSearch = [] } = useQuery<Distributor[]>({
+    queryKey: ["/distributors/search", distQuery],
+    enabled: distQuery.length >= 2,
+  });
+  const { data: brandSearch = [] } = useQuery<Brand[]>({
+    queryKey: ["/brands/search", brandQuery],
+    enabled: brandQuery.length >= 2,
+  });
+
+  const [page, setPage] = useState(0);
+  const ITEMS_PER_PAGE = 10;
 
   const [selected, setSelected] = useState<Distributor | null>(null);
   const [distForm, setDistForm] = useState<Distributor | null>(null);
@@ -69,6 +84,24 @@ export default function DistributorList() {
         </Badge>
       ));
 
+  let displayDistributors = distQuery.length >= 2 ? distSearch : distributors;
+  if (brandQuery.length >= 2) {
+    const brandIds = new Set(brandSearch.map((b) => b.distributor_id));
+    displayDistributors = displayDistributors.filter((d) =>
+      brandIds.has(d.id),
+    );
+  }
+
+  const totalPages = Math.ceil(displayDistributors.length / ITEMS_PER_PAGE);
+  const paginated = displayDistributors.slice(
+    page * ITEMS_PER_PAGE,
+    page * ITEMS_PER_PAGE + ITEMS_PER_PAGE,
+  );
+
+  useEffect(() => {
+    setPage(0);
+  }, [distQuery, brandQuery]);
+
   if (isLoading) {
     return <div className="p-6">Loading...</div>;
   }
@@ -86,6 +119,18 @@ export default function DistributorList() {
           <CardTitle>Distributors &amp; Brands</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="flex gap-4 mb-4">
+            <Input
+              placeholder="Search distributors..."
+              value={distQuery}
+              onChange={(e) => setDistQuery(e.target.value)}
+            />
+            <Input
+              placeholder="Search brands..."
+              value={brandQuery}
+              onChange={(e) => setBrandQuery(e.target.value)}
+            />
+          </div>
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -99,7 +144,7 @@ export default function DistributorList() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {distributors.map((dist) => (
+                {paginated.map((dist) => (
                   <TableRow
                     key={dist.id}
                     onClick={() => {
@@ -123,6 +168,27 @@ export default function DistributorList() {
                 ))}
               </TableBody>
             </Table>
+            <div className="flex items-center justify-between mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                disabled={page === 0}
+              >
+                Previous
+              </Button>
+              <span className="text-sm">
+                Page {page + 1} of {totalPages || 1}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+                disabled={page + 1 >= totalPages}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

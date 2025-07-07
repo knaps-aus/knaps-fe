@@ -135,7 +135,11 @@ export default function AddProduct() {
                       <FormItem>
                         <FormLabel>Secondary Code</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter secondary code (optional)" {...field} />
+                          <Input
+                            placeholder="Enter secondary code (optional)"
+                            {...field}
+                            value={field.value ?? ""}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -147,7 +151,10 @@ export default function AddProduct() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Distributor *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value ?? undefined}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select distributor" />
@@ -170,7 +177,11 @@ export default function AddProduct() {
                       <FormItem>
                         <FormLabel>EAN</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter EAN barcode" {...field} />
+                          <Input
+                            placeholder="Enter EAN barcode"
+                            {...field}
+                            value={field.value ?? ""}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -198,6 +209,7 @@ export default function AddProduct() {
                               placeholder="0.00"
                               className="pl-8"
                               {...field}
+                              value={field.value ?? ""}
                             />
                           </div>
                         </FormControl>
@@ -220,6 +232,7 @@ export default function AddProduct() {
                               placeholder="0.00"
                               className="pl-8"
                               {...field}
+                              value={field.value ?? ""}
                             />
                           </div>
                         </FormControl>
@@ -242,6 +255,7 @@ export default function AddProduct() {
                               placeholder="0.00"
                               className="pl-8"
                               {...field}
+                              value={field.value ?? ""}
                             />
                           </div>
                         </FormControl>
@@ -264,6 +278,7 @@ export default function AddProduct() {
                               placeholder="0.00"
                               className="pl-8"
                               {...field}
+                              value={field.value ?? ""}
                             />
                           </div>
                         </FormControl>
@@ -284,7 +299,10 @@ export default function AddProduct() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value ?? undefined}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select category" />
@@ -307,7 +325,10 @@ export default function AddProduct() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Shipping Class</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value ?? undefined}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select shipping class" />
@@ -331,7 +352,11 @@ export default function AddProduct() {
                       <FormItem>
                         <FormLabel>Core Group</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter core group" {...field} />
+                          <Input
+                            placeholder="Enter core group"
+                            {...field}
+                            value={field.value ?? ""}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -355,6 +380,7 @@ export default function AddProduct() {
                             rows={3}
                             placeholder="Enter product description"
                             {...field}
+                            value={field.value ?? ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -372,6 +398,7 @@ export default function AddProduct() {
                             rows={2}
                             placeholder="Enter product summary"
                             {...field}
+                            value={field.value ?? ""}
                           />
                         </FormControl>
                         <FormMessage />
@@ -386,7 +413,11 @@ export default function AddProduct() {
                         <FormItem>
                           <FormLabel>Web Title</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter web title" {...field} />
+                            <Input
+                              placeholder="Enter web title"
+                              {...field}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -399,7 +430,12 @@ export default function AddProduct() {
                         <FormItem>
                           <FormLabel>Hyperlink</FormLabel>
                           <FormControl>
-                            <Input type="url" placeholder="Enter product URL" {...field} />
+                            <Input
+                              type="url"
+                              placeholder="Enter product URL"
+                              {...field}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -414,7 +450,11 @@ export default function AddProduct() {
                         <FormItem>
                           <FormLabel>Features & Benefits Codes</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter comma-separated codes" {...field} />
+                            <Input
+                              placeholder="Enter comma-separated codes"
+                              {...field}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -427,7 +467,11 @@ export default function AddProduct() {
                         <FormItem>
                           <FormLabel>Badge Codes</FormLabel>
                           <FormControl>
-                            <Input placeholder="Enter comma-separated codes" {...field} />
+                            <Input
+                              placeholder="Enter comma-separated codes"
+                              {...field}
+                              value={field.value ?? ""}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>

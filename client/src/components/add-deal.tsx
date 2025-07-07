@@ -185,7 +185,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -259,7 +264,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Store Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -272,7 +282,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Head Office Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -285,7 +300,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Trade Price</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
