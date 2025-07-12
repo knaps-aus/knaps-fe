@@ -179,3 +179,57 @@ export type Brand = {
   deleted_by?: string | null;
   deleted?: string | null;
 };
+
+export type PriceLevel = {
+  id?: number;
+  price_level: "MWP" | "Trade" | "GO" | "RRP";
+  type: string;
+  value_excl: string;
+  value_incl?: string | null;
+  comments?: string | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+};
+
+export type MyPrice = {
+  id?: number | null;
+  uuid?: string | null;
+  product_id?: number | null;
+  active?: boolean | null;
+  go?: string | null;
+  go_special?: string | null;
+  rrp?: string | null;
+  rrp_special?: string | null;
+  trade?: string | null;
+  off_invoice?: string | null;
+  invoice?: string | null;
+  vendor_percent?: string | null;
+  vendor_dollar?: string | null;
+  bonus_percent?: string | null;
+  bonus_dollar?: string | null;
+  brand_percent?: string | null;
+  hoff_percent?: string | null;
+  hoff_dollar?: string | null;
+  net?: string | null;
+  sellthru_dollar?: string | null;
+  nac?: string | null;
+  off_invoice_hoff?: string | null;
+  invoice_hoff?: string | null;
+  vendor_percent_hoff?: string | null;
+  vendor_dollar_hoff?: string | null;
+  bonus_percent_hoff?: string | null;
+  bonus_dollar_hoff?: string | null;
+  brand_percent_hoff?: string | null;
+  net_hoff?: string | null;
+  sellthru_dollar_hoff?: string | null;
+  nac_hoff?: string | null;
+  created_at?: string | null;
+  modified_at?: string | null;
+};
+
+export type ProductWithPrices = Product & {
+  price_levels?: PriceLevel[];
+  my_price?: MyPrice | null;
+  brand?: Brand | null;
+  distributor?: Distributor | null;
+};

@@ -10,7 +10,19 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Save, Edit, Camera, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Product, ProductAnalytics } from "@shared/schema";
+import {
+  ProductWithPrices as Product,
+  ProductAnalytics,
+  PriceLevel,
+} from "@shared/schema";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
 
@@ -26,6 +38,8 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   const [franchiseCalc, setFranchiseCalc] = useState({ sellPrice: '', costPrice: '' });
   const [mwpCalc, setMwpCalc] = useState({ sellPrice: '', costPrice: '' });
   const [goCalc, setGoCalc] = useState({ sellPrice: '', costPrice: '' });
+  const [bestCalc, setBestCalc] = useState({ sellPrice: '', costPrice: '' });
+  const [latestPrices, setLatestPrices] = useState<PriceLevel[]>([]);
   const { toast } = useToast();
 
   const { data: product, isLoading } = useQuery<Product>({
@@ -64,9 +78,40 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   useEffect(() => {
     if (product) {
       setFormData(product);
-      setFranchiseCalc({ sellPrice: product.rrp || '', costPrice: product.trade || '' });
-      setMwpCalc({ sellPrice: product.mwp || '', costPrice: product.trade || '' });
-      setGoCalc({ sellPrice: product.go || '', costPrice: product.trade || '' });
+
+      const map: Record<string, PriceLevel> = {};
+      product.price_levels?.forEach((pl) => {
+        const existing = map[pl.price_level];
+        const existingDate = existing
+          ? new Date(existing.updated_at ?? existing.created_at ?? '').getTime()
+          : -Infinity;
+        const newDate = new Date(pl.updated_at ?? pl.created_at ?? '').getTime();
+        if (!existing || newDate > existingDate) {
+          map[pl.price_level] = pl;
+        }
+      });
+      setLatestPrices(Object.values(map));
+
+      const getValue = (lvl: string) => map[lvl]?.value_incl ?? '';
+
+      setFranchiseCalc({ sellPrice: getValue('RRP'), costPrice: getValue('Trade') });
+      setMwpCalc({ sellPrice: getValue('MWP'), costPrice: getValue('Trade') });
+      setGoCalc({ sellPrice: getValue('GO'), costPrice: getValue('Trade') });
+
+      const sellCandidates = [parseFloat(getValue('GO')), parseFloat(getValue('RRP'))].filter((n) => !isNaN(n));
+      const buyCandidates = [
+        parseFloat(product.my_price?.net ?? getValue('Trade')),
+        parseFloat(product.my_price?.invoice ?? ''),
+        parseFloat(getValue('Trade')),
+      ].filter((n) => !isNaN(n));
+
+      const highestSell = Math.max(...(sellCandidates.length ? sellCandidates : [0]));
+      const lowestBuy = Math.min(...(buyCandidates.length ? buyCandidates : [0]));
+
+      setBestCalc({
+        sellPrice: isFinite(highestSell) ? highestSell.toString() : '',
+        costPrice: isFinite(lowestBuy) ? lowestBuy.toString() : '',
+      });
     }
   }, [product]);
 
@@ -150,6 +195,10 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
     setGoCalc(prev => updateCalcState(prev, field, value));
   };
 
+  const handleBestCalcChange = (field: CalcField, value: string) => {
+    setBestCalc((prev) => updateCalcState(prev, field, value));
+  };
+
   const calculateMarginDetails = (
     sellPriceIncl: string,
     costPriceIncl: string,
@@ -189,6 +238,7 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   // Store level calculations (MWP vs Trade, GO vs Trade)
   const mwpStoreMargin = calculateMarginDetails(mwpCalc.sellPrice || '0', mwpCalc.costPrice || '0', taxRate);
   const goStoreMargin = calculateMarginDetails(goCalc.sellPrice || '0', goCalc.costPrice || '0', taxRate);
+  const bestMargin = calculateMarginDetails(bestCalc.sellPrice || '0', bestCalc.costPrice || '0', taxRate);
 
   const productAnalytics = analytics?.[0];
 
@@ -547,6 +597,32 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
             <CardTitle>Pricing & Margins</CardTitle>
           </CardHeader>
           <CardContent>
+            {latestPrices.length > 0 && (
+              <div className="overflow-x-auto mb-6">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Level</TableHead>
+                      <TableHead>Type</TableHead>
+                      <TableHead>Excl.</TableHead>
+                      <TableHead>Incl.</TableHead>
+                      <TableHead>Comments</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {latestPrices.map((pl) => (
+                      <TableRow key={`${pl.price_level}-${pl.type}`}>
+                        <TableCell>{pl.price_level}</TableCell>
+                        <TableCell>{pl.type}</TableCell>
+                        <TableCell>{pl.value_excl}</TableCell>
+                        <TableCell>{pl.value_incl ?? '-'}</TableCell>
+                        <TableCell>{pl.comments ?? ''}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
               <div>
                 <Label htmlFor="trade">Trade Price</Label>
@@ -817,6 +893,67 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                         className="w-20 text-right"
                       />
                     </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 mt-6">
+                <h4 className="text-lg font-semibold text-purple-900 mb-4">Best Margin (High Sell vs Low Buy)</h4>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-purple-600 font-medium">Sell Price (incl.):</span>
+                    <div className="relative">
+                      <span className="absolute left-2 top-1.5 text-purple-600">$</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={bestCalc.sellPrice}
+                        onChange={(e) => handleBestCalcChange('sellPrice', e.target.value)}
+                        className="pl-5 w-24 text-right"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-purple-600 font-medium">Net Cost (incl.):</span>
+                    <div className="relative">
+                      <span className="absolute left-2 top-1.5 text-purple-600">$</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={bestCalc.costPrice}
+                        onChange={(e) => handleBestCalcChange('costPrice', e.target.value)}
+                        className="pl-5 w-24 text-right"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-purple-600 font-medium">Gross Margin:</span>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={bestMargin.grossMarginPercentage}
+                      onChange={(e) => handleBestCalcChange('margin', e.target.value)}
+                      className="w-20 text-right"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-purple-600 font-medium">Markup:</span>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={bestMargin.markupPercentage}
+                      onChange={(e) => handleBestCalcChange('markup', e.target.value)}
+                      className="w-20 text-right"
+                    />
+                  </div>
+                  <div className="flex justify-between items-center border-t border-purple-200 pt-2">
+                    <span className="text-sm text-purple-600 font-medium">Gross Profit (incl.):</span>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={bestMargin.grossProfit}
+                      onChange={(e) => handleBestCalcChange('profit', e.target.value)}
+                      className="w-20 text-right"
+                    />
                   </div>
                 </div>
               </div>
