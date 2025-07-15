@@ -187,6 +187,8 @@ export type PriceLevel = {
   value_excl: string;
   value_incl?: string | null;
   comments?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
   created_at?: string | null;
   updated_at?: string | null;
 };

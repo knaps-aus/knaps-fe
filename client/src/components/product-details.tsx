@@ -602,23 +602,35 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Level</TableHead>
+                      <TableHead>Price Level</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead>Excl.</TableHead>
-                      <TableHead>Incl.</TableHead>
+                      <TableHead>Value (excl.)</TableHead>
+                      <TableHead>Value (incl.)</TableHead>
                       <TableHead>Comments</TableHead>
+                      <TableHead>Start Date</TableHead>
+                      <TableHead>End Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {latestPrices.map((pl) => (
-                      <TableRow key={`${pl.price_level}-${pl.type}`}>
-                        <TableCell>{pl.price_level}</TableCell>
-                        <TableCell>{pl.type}</TableCell>
-                        <TableCell>{pl.value_excl}</TableCell>
-                        <TableCell>{pl.value_incl ?? '-'}</TableCell>
-                        <TableCell>{pl.comments ?? ''}</TableCell>
-                      </TableRow>
-                    ))}
+                    {latestPrices.map((pl) => {
+                      const nameMap: Record<string, string> = {
+                        Trade: 'Trade Price',
+                        GO: 'GO Price',
+                        MWP: 'MWP',
+                        RRP: 'RRP',
+                      };
+                      return (
+                        <TableRow key={`${pl.price_level}-${pl.type}`}>
+                          <TableCell>{nameMap[pl.price_level] || pl.price_level}</TableCell>
+                          <TableCell>{pl.type}</TableCell>
+                          <TableCell>{pl.value_excl}</TableCell>
+                          <TableCell>{pl.value_incl ?? '-'}</TableCell>
+                          <TableCell>{pl.comments ?? ''}</TableCell>
+                          <TableCell>{pl.start_date ?? pl.created_at ?? '-'}</TableCell>
+                          <TableCell>{pl.end_date ?? pl.updated_at ?? '-'}</TableCell>
+                        </TableRow>
+                      );
+                    })}
                   </TableBody>
                 </Table>
               </div>
