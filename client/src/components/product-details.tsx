@@ -602,32 +602,55 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Price Level</TableHead>
+                      <TableHead>PriceLevel</TableHead>
                       <TableHead>Type</TableHead>
-                      <TableHead>Value (excl.)</TableHead>
-                      <TableHead>Value (incl.)</TableHead>
+                      <TableHead>ValueExcl</TableHead>
+                      <TableHead>ValueIncl</TableHead>
                       <TableHead>Comments</TableHead>
-                      <TableHead>Start Date</TableHead>
-                      <TableHead>End Date</TableHead>
+                      <TableHead>StartDate</TableHead>
+                      <TableHead>EndDate</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {latestPrices.map((pl) => {
                       const nameMap: Record<string, string> = {
-                        Trade: 'Trade Price',
-                        GO: 'GO Price',
+                        Trade: 'TradePrice',
+                        GO: 'GOPrice',
                         MWP: 'MWP',
                         RRP: 'RRP',
                       };
+
+                      const formatValue = (v?: string | null) =>
+                        v ? Number(v).toFixed(2) : '-';
+
+                      const formatDate = (d?: string | null) =>
+                        d ? new Date(d).toLocaleDateString() : '-';
+
+                      const type = pl.type?.toLowerCase();
+
                       return (
                         <TableRow key={`${pl.price_level}-${pl.type}`}>
                           <TableCell>{nameMap[pl.price_level] || pl.price_level}</TableCell>
-                          <TableCell>{pl.type}</TableCell>
-                          <TableCell>{pl.value_excl}</TableCell>
-                          <TableCell>{pl.value_incl ?? '-'}</TableCell>
+                          <TableCell>
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              className={
+                                type === 'buy'
+                                  ? 'bg-green-100 text-green-800 hover:bg-green-200'
+                                  : type === 'sell'
+                                  ? 'bg-red-100 text-red-800 hover:bg-red-200'
+                                  : undefined
+                              }
+                            >
+                              {pl.type}
+                            </Button>
+                          </TableCell>
+                          <TableCell>{formatValue(pl.value_excl)}</TableCell>
+                          <TableCell>{formatValue(pl.value_incl)}</TableCell>
                           <TableCell>{pl.comments ?? ''}</TableCell>
-                          <TableCell>{pl.start_date ?? pl.created_at ?? '-'}</TableCell>
-                          <TableCell>{pl.end_date ?? pl.updated_at ?? '-'}</TableCell>
+                          <TableCell>{formatDate(pl.start_date ?? pl.created_at)}</TableCell>
+                          <TableCell>{formatDate(pl.end_date ?? pl.updated_at)}</TableCell>
                         </TableRow>
                       );
                     })}
