@@ -38,7 +38,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   const [franchiseCalc, setFranchiseCalc] = useState({ sellPrice: '', costPrice: '' });
   const [mwpCalc, setMwpCalc] = useState({ sellPrice: '', costPrice: '' });
   const [goCalc, setGoCalc] = useState({ sellPrice: '', costPrice: '' });
-  const [bestCalc, setBestCalc] = useState({ sellPrice: '', costPrice: '' });
   const [latestPrices, setLatestPrices] = useState<PriceLevel[]>([]);
   const { toast } = useToast();
 
@@ -98,20 +97,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
       setMwpCalc({ sellPrice: getValue('MWP'), costPrice: getValue('Trade') });
       setGoCalc({ sellPrice: getValue('GO'), costPrice: getValue('Trade') });
 
-      const sellCandidates = [parseFloat(getValue('GO')), parseFloat(getValue('RRP'))].filter((n) => !isNaN(n));
-      const buyCandidates = [
-        parseFloat(product.my_price?.net ?? getValue('Trade')),
-        parseFloat(product.my_price?.invoice ?? ''),
-        parseFloat(getValue('Trade')),
-      ].filter((n) => !isNaN(n));
-
-      const highestSell = Math.max(...(sellCandidates.length ? sellCandidates : [0]));
-      const lowestBuy = Math.min(...(buyCandidates.length ? buyCandidates : [0]));
-
-      setBestCalc({
-        sellPrice: isFinite(highestSell) ? highestSell.toString() : '',
-        costPrice: isFinite(lowestBuy) ? lowestBuy.toString() : '',
-      });
     }
   }, [product]);
 
@@ -195,9 +180,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
     setGoCalc(prev => updateCalcState(prev, field, value));
   };
 
-  const handleBestCalcChange = (field: CalcField, value: string) => {
-    setBestCalc((prev) => updateCalcState(prev, field, value));
-  };
 
   const calculateMarginDetails = (
     sellPriceIncl: string,
@@ -238,7 +220,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   // Store level calculations (MWP vs Trade, GO vs Trade)
   const mwpStoreMargin = calculateMarginDetails(mwpCalc.sellPrice || '0', mwpCalc.costPrice || '0', taxRate);
   const goStoreMargin = calculateMarginDetails(goCalc.sellPrice || '0', goCalc.costPrice || '0', taxRate);
-  const bestMargin = calculateMarginDetails(bestCalc.sellPrice || '0', bestCalc.costPrice || '0', taxRate);
 
   const productAnalytics = analytics?.[0];
 
@@ -928,67 +909,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                         className="w-20 text-right"
                       />
                     </div>
-                  </div>
-                </div>
-              </div>
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 mt-6">
-                <h4 className="text-lg font-semibold text-purple-900 mb-4">Best Margin (High Sell vs Low Buy)</h4>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-purple-600 font-medium">Sell Price (incl.):</span>
-                    <div className="relative">
-                      <span className="absolute left-2 top-1.5 text-purple-600">$</span>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={bestCalc.sellPrice}
-                        onChange={(e) => handleBestCalcChange('sellPrice', e.target.value)}
-                        className="pl-5 w-24 text-right"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-purple-600 font-medium">Net Cost (incl.):</span>
-                    <div className="relative">
-                      <span className="absolute left-2 top-1.5 text-purple-600">$</span>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        value={bestCalc.costPrice}
-                        onChange={(e) => handleBestCalcChange('costPrice', e.target.value)}
-                        className="pl-5 w-24 text-right"
-                      />
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-purple-600 font-medium">Gross Margin:</span>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={bestMargin.grossMarginPercentage}
-                      onChange={(e) => handleBestCalcChange('margin', e.target.value)}
-                      className="w-20 text-right"
-                    />
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-purple-600 font-medium">Markup:</span>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={bestMargin.markupPercentage}
-                      onChange={(e) => handleBestCalcChange('markup', e.target.value)}
-                      className="w-20 text-right"
-                    />
-                  </div>
-                  <div className="flex justify-between items-center border-t border-purple-200 pt-2">
-                    <span className="text-sm text-purple-600 font-medium">Gross Profit (incl.):</span>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      value={bestMargin.grossProfit}
-                      onChange={(e) => handleBestCalcChange('profit', e.target.value)}
-                      className="w-20 text-right"
-                    />
                   </div>
                 </div>
               </div>
