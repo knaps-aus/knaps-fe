@@ -1,8 +1,11 @@
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import Sidebar from "@/components/sidebar";
 import UserMenu from "@/components/user-menu";
 import { ListTree, Bell } from "lucide-react";
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 
 interface CTCCategoryHierarchy {
   id: number;
@@ -35,8 +38,39 @@ export default function CTCHierarchyPage() {
   const { data: hierarchy = [], isLoading } = useQuery<CTCClassHierarchy[]>({
     queryKey: ["/ctc/hierarchy"],
   });
+  const [query, setQuery] = React.useState("");
 
-  const treeData: TreeDataItem[] = hierarchy.map((cls) => ({
+  const filteredHierarchy = React.useMemo(() => {
+    if (!query.trim()) return hierarchy;
+    const q = query.toLowerCase();
+    return hierarchy.reduce<CTCClassHierarchy[]>((acc, cls) => {
+      const classMatch = cls.name.toLowerCase().includes(q);
+      if (classMatch) {
+        acc.push(cls);
+        return acc;
+      }
+      const types = cls.types.reduce<CTCTypeHierarchy[]>((typeAcc, type) => {
+        const typeMatch = type.name.toLowerCase().includes(q);
+        if (typeMatch) {
+          typeAcc.push(type);
+          return typeAcc;
+        }
+        const categories = type.categories.filter((cat) =>
+          cat.name.toLowerCase().includes(q),
+        );
+        if (categories.length) {
+          typeAcc.push({ ...type, categories });
+        }
+        return typeAcc;
+      }, []);
+      if (types.length) {
+        acc.push({ ...cls, types });
+      }
+      return acc;
+    }, []);
+  }, [hierarchy, query]);
+
+  const treeData: TreeDataItem[] = filteredHierarchy.map((cls) => ({
     id: String(cls.id),
     name: cls.name,
     className: "text-gray-800",
@@ -74,7 +108,18 @@ export default function CTCHierarchyPage() {
           {isLoading ? (
             <div>Loading...</div>
           ) : (
-            <TreeView data={treeData} expandAll className="bg-white rounded p-4" />
+            <>
+              <div className="mb-4 relative max-w-md">
+                <Input
+                  placeholder="Search hierarchy..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  className="pl-8"
+                />
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
+              </div>
+              <TreeView data={treeData} expandAll className="bg-white rounded p-4" />
+            </>
           )}
         </main>
       </div>
