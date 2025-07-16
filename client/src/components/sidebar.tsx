@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 const navigation = [
   { name: 'Product Management', href: '/products', icon: Box },
   { name: 'Distributors & Brands', href: '/distributors', icon: Warehouse },
+  { name: 'CTC Hierarchy', href: '/ctc-hierarchy', icon: Box },
   { name: 'Sales Analytics', href: '#', icon: ChartLine },
   { name: 'Inventory', href: '#', icon: Warehouse },
   { name: 'Customers', href: '#', icon: Users },
