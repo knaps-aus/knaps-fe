@@ -39,12 +39,15 @@ export default function CTCHierarchyPage() {
   const treeData: TreeDataItem[] = hierarchy.map((cls) => ({
     id: String(cls.id),
     name: cls.name,
+    className: "text-indigo-700",
     children: cls.types.map((type) => ({
       id: `t-${type.id}`,
       name: type.name,
+      className: "text-emerald-700",
       children: type.categories.map((cat) => ({
         id: `c-${cat.id}`,
         name: cat.name,
+        className: "text-gray-700",
       })),
     })),
   }));
