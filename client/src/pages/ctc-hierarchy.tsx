@@ -82,8 +82,9 @@ export default function CTCHierarchyPage() {
     className: "text-gray-800",
     actions: (
       <Button
-        variant="ghost"
-        size="xs"
+        variant="secondary"
+        size="sm"
+        className="text-gray-800"
         onClick={(e) => {
           e.stopPropagation();
           setFbTarget({ level: "class", id: cls.id, name: cls.name });
@@ -98,8 +99,9 @@ export default function CTCHierarchyPage() {
       className: "text-gray-600",
       actions: (
         <Button
-          variant="ghost"
-          size="xs"
+        variant="secondary"
+        size="sm"
+        className="text-gray-800"
           onClick={(e) => {
             e.stopPropagation();
             setFbTarget({ level: "type", id: type.id, name: type.name });
@@ -114,8 +116,9 @@ export default function CTCHierarchyPage() {
         className: "text-gray-500",
         actions: (
           <Button
-            variant="ghost"
-            size="xs"
+            variant="secondary"
+            size="sm"
+            className="text-gray-800"
             onClick={(e) => {
               e.stopPropagation();
               setFbTarget({ level: "category", id: cat.id, name: cat.name });
