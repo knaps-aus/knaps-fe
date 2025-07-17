@@ -6,6 +6,8 @@ import { ListTree, Bell } from "lucide-react";
 import { TreeView, TreeDataItem } from "@/components/ui/tree-view";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import CTCFeaturesDialog from "@/components/ctc-features-dialog";
 
 interface CTCCategoryHierarchy {
   id: number;
@@ -39,6 +41,10 @@ export default function CTCHierarchyPage() {
     queryKey: ["/ctc/hierarchy"],
   });
   const [query, setQuery] = React.useState("");
+  const [fbTarget, setFbTarget] = React.useState<
+    | { level: "class" | "type" | "category"; id: number; name: string }
+    | null
+  >(null);
 
   const filteredHierarchy = React.useMemo(() => {
     if (!query.trim()) return hierarchy;
@@ -74,14 +80,50 @@ export default function CTCHierarchyPage() {
     id: String(cls.id),
     name: cls.name,
     className: "text-gray-800",
+    actions: (
+      <Button
+        variant="ghost"
+        size="xs"
+        onClick={(e) => {
+          e.stopPropagation();
+          setFbTarget({ level: "class", id: cls.id, name: cls.name });
+        }}
+      >
+        Features
+      </Button>
+    ),
     children: cls.types.map((type) => ({
       id: `t-${type.id}`,
       name: type.name,
       className: "text-gray-600",
+      actions: (
+        <Button
+          variant="ghost"
+          size="xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            setFbTarget({ level: "type", id: type.id, name: type.name });
+          }}
+        >
+          Features
+        </Button>
+      ),
       children: type.categories.map((cat) => ({
         id: `c-${cat.id}`,
         name: cat.name,
         className: "text-gray-500",
+        actions: (
+          <Button
+            variant="ghost"
+            size="xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              setFbTarget({ level: "category", id: cat.id, name: cat.name });
+            }}
+          >
+            Features
+          </Button>
+        ),
       })),
     })),
   }));
@@ -119,6 +161,15 @@ export default function CTCHierarchyPage() {
                 <Search className="absolute left-2 top-2.5 h-4 w-4 text-gray-400" />
               </div>
               <TreeView data={treeData} expandAll className="bg-white rounded p-4" />
+              {fbTarget && (
+                <CTCFeaturesDialog
+                  open={!!fbTarget}
+                  onOpenChange={(o) => !o && setFbTarget(null)}
+                  level={fbTarget.level}
+                  sourceId={fbTarget.id}
+                  name={fbTarget.name}
+                />
+              )}
             </>
           )}
         </main>
