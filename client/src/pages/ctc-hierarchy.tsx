@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import CTCFeaturesDialog from "@/components/ctc-features-dialog";
+import CTCAttributesDialog from "@/components/ctc-attributes-dialog";
 
 interface CTCCategoryHierarchy {
   id: number;
@@ -43,6 +44,10 @@ export default function CTCHierarchyPage() {
   const [query, setQuery] = React.useState("");
   const [fbTarget, setFbTarget] = React.useState<
     | { level: "class" | "type" | "category"; id: number; name: string }
+    | null
+  >(null);
+  const [attrTarget, setAttrTarget] = React.useState<
+    | { id: number; name: string }
     | null
   >(null);
 
@@ -115,17 +120,30 @@ export default function CTCHierarchyPage() {
         name: cat.name,
         className: "text-gray-500",
         actions: (
-          <Button
-            variant="secondary"
-            size="sm"
-            className="text-gray-800"
-            onClick={(e) => {
-              e.stopPropagation();
-              setFbTarget({ level: "category", id: cat.id, name: cat.name });
-            }}
-          >
-            Features
-          </Button>
+          <div className="space-x-2">
+            <Button
+              variant="secondary"
+              size="sm"
+              className="text-gray-800"
+              onClick={(e) => {
+                e.stopPropagation();
+                setFbTarget({ level: "category", id: cat.id, name: cat.name });
+              }}
+            >
+              Features
+            </Button>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="text-gray-800"
+              onClick={(e) => {
+                e.stopPropagation();
+                setAttrTarget({ id: cat.id, name: cat.name });
+              }}
+            >
+              Attributes
+            </Button>
+          </div>
         ),
       })),
     })),
@@ -171,6 +189,14 @@ export default function CTCHierarchyPage() {
                   level={fbTarget.level}
                   sourceId={fbTarget.id}
                   name={fbTarget.name}
+                />
+              )}
+              {attrTarget && (
+                <CTCAttributesDialog
+                  open={!!attrTarget}
+                  onOpenChange={(o) => !o && setAttrTarget(null)}
+                  categoryId={attrTarget.id}
+                  name={attrTarget.name}
                 />
               )}
             </>
