@@ -60,7 +60,7 @@ export default function CTCAttributesDialog({
   name,
 }: CTCAttributesDialogProps) {
   const { data: attributes = [], isLoading } = useQuery<CategoryAttribute[]>({
-    queryKey: ["/ctc/features-benefits/category/", categoryId, "/attributes"],
+    queryKey: ["/ctc/categories/", categoryId, "/attributes"],
     enabled: open,
   });
 
@@ -89,16 +89,17 @@ export default function CTCAttributesDialog({
       if (editing) {
         return apiRequest(
           "PUT",
-          `/ctc/features-benefits/category/attribute/${editing.id}`,
+          `/ctc/attributes/${editing.id}`,
           {
             code: data.code,
             title: data.title,
             description: data.description,
             image_url: data.image_url,
+            category_id: categoryId,
           },
         );
       }
-      return apiRequest("POST", `/ctc/features-benefits/category/attribute`, {
+      return apiRequest("POST", `/ctc/attributes`, {
         category_id: categoryId,
         code: data.code,
         title: data.title,
@@ -108,7 +109,7 @@ export default function CTCAttributesDialog({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["/ctc/features-benefits/category/", categoryId, "/attributes"],
+        queryKey: ["/ctc/categories/", categoryId, "/attributes"],
       });
       setEditing(null);
       form.reset();
@@ -117,10 +118,10 @@ export default function CTCAttributesDialog({
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) =>
-      apiRequest("DELETE", `/ctc/features-benefits/category/attribute/${id}`),
+      apiRequest("DELETE", `/ctc/attributes/${id}`),
     onSuccess: () =>
       queryClient.invalidateQueries({
-        queryKey: ["/ctc/features-benefits/category/", categoryId, "/attributes"],
+        queryKey: ["/ctc/categories/", categoryId, "/attributes"],
       }),
   });
 
