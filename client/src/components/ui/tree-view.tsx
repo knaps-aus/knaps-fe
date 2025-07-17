@@ -476,7 +476,7 @@ const TreeActions = ({
     isSelected?: boolean
 }) => {
     return (
-        <div className="absolute right-3">
+        <div className="absolute right-3 hidden group-hover:block">
             {children}
         </div>
     )
