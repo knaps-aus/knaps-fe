@@ -7,15 +7,15 @@ import { cva } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
 
 const treeVariants = cva(
-    'group relative w-full px-2 hover:before:opacity-100 before:absolute before:inset-y-0 before:left-0 before:right-0 before:rounded-lg before:opacity-0 before:bg-accent/70 before:-z-10'
+    'group relative w-full px-2 hover:bg-accent hover:bg-opacity-90 rounded-lg transition-colors'
 )
 
 const selectedTreeVariants = cva(
-    'before:opacity-100 before:bg-accent/70 text-accent-foreground'
+    'bg-accent bg-opacity-50 text-accent-foreground'
 )
 
 const dragOverVariants = cva(
-    'before:opacity-100 before:bg-primary/20 text-primary-foreground'
+    'bg-primary bg-opacity-20 text-primary-foreground'
 )
 
 interface TreeDataItem {
@@ -268,33 +268,35 @@ const TreeNode = ({
             onValueChange={(s) => setValue(s)}
         >
             <AccordionPrimitive.Item value={item.id}>
-                <AccordionTrigger
-                    className={cn(
-                        treeVariants(),
-                        selectedItemId === item.id && selectedTreeVariants(),
-                        isDragOver && dragOverVariants()
-                    )}
-                    onClick={() => {
-                        handleSelectChange(item)
-                        item.onClick?.()
-                    }}
-                    draggable={!!item.draggable}
-                    onDragStart={onDragStart}
-                    onDragOver={onDragOver}
-                    onDragLeave={onDragLeave}
-                    onDrop={onDrop}
-                >
-                    <TreeIcon
-                        item={item}
-                        isSelected={selectedItemId === item.id}
-                        isOpen={value.includes(item.id)}
-                        default={defaultNodeIcon}
-                    />
-                    <span className={cn('text-sm truncate', item.className)}>{item.name}</span>
+                <div className={cn("relative group", treeVariants())}>
+                    <AccordionTrigger
+                        className={cn(
+                            'group relative w-full px-2 rounded-lg transition-colors',
+                            selectedItemId === item.id && selectedTreeVariants(),
+                            isDragOver && dragOverVariants()
+                        )}
+                        onClick={() => {
+                            handleSelectChange(item)
+                            item.onClick?.()
+                        }}
+                        draggable={!!item.draggable}
+                        onDragStart={onDragStart}
+                        onDragOver={onDragOver}
+                        onDragLeave={onDragLeave}
+                        onDrop={onDrop}
+                    >
+                        <TreeIcon
+                            item={item}
+                            isSelected={selectedItemId === item.id}
+                            isOpen={value.includes(item.id)}
+                            default={defaultNodeIcon}
+                        />
+                        <span className={cn('text-sm truncate', item.className)}>{item.name}</span>
+                    </AccordionTrigger>
                     <TreeActions isSelected={selectedItemId === item.id}>
                         {item.actions}
                     </TreeActions>
-                </AccordionTrigger>
+                </div>
                 <AccordionContent className="ml-4 pl-1 border-l">
                     <TreeItem
                         data={item.children ? item.children : item}
@@ -476,7 +478,7 @@ const TreeActions = ({
     isSelected?: boolean
 }) => {
     return (
-        <div className="absolute right-3 hidden group-hover:block">
+        <div className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity">
             {children}
         </div>
     )
