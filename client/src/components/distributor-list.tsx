@@ -75,7 +75,7 @@ export default function DistributorList() {
 
   const [selected, setSelected] = useState<Distributor | null>(null);
   const [brandsPage, setBrandsPage] = useState(0);
-  const BRANDS_PER_PAGE = 10;
+  const BRANDS_PER_PAGE = 5;
   const [distForm, setDistForm] = useState<Distributor | null>(null);
   const [editingDist, setEditingDist] = useState(false);
 
@@ -245,7 +245,7 @@ export default function DistributorList() {
           open={!!selected}
           onOpenChange={(open) => !open && setSelected(null)}
         >
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <VisuallyHidden>
               <DialogTitle>{selected.name}</DialogTitle>
             </VisuallyHidden>
@@ -254,7 +254,7 @@ export default function DistributorList() {
                 View and edit distributor details and associated brands
               </DialogDescription>
             </VisuallyHidden>
-            <Card className="h-full flex flex-col">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
                 <CardTitle>{selected.name}</CardTitle>
                 <div className="flex gap-2">
@@ -280,7 +280,7 @@ export default function DistributorList() {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="flex-1 overflow-auto">
+              <CardContent>
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
