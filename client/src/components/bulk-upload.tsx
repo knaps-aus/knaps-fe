@@ -84,12 +84,7 @@ export default function BulkUpload() {
               case 'stock_unmanaged':
                 product[header] = value.toLowerCase() === 'true' || value === '1';
                 break;
-              case 'trade':
-              case 'rrp':
-              case 'mwp':
-              case 'go':
-                product[header] = value || null;
-                break;
+
               default:
                 product[header] = value || null;
             }

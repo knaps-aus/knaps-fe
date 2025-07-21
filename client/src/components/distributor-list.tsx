@@ -9,7 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,29 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { Distributor, Brand } from "@shared/schema";
 import { useEffect } from "react";
+
+// VisuallyHidden component for accessibility
+type VisuallyHiddenProps = React.HTMLAttributes<HTMLSpanElement>;
+function VisuallyHidden({ children, ...props }: VisuallyHiddenProps) {
+  return (
+    <span
+      style={{
+        border: 0,
+        clip: "rect(0 0 0 0)",
+        height: "1px",
+        margin: "-1px",
+        overflow: "hidden",
+        padding: 0,
+        position: "absolute",
+        width: "1px",
+        whiteSpace: "nowrap",
+      }}
+      {...props}
+    >
+      {children}
+    </span>
+  );
+}
 
 export default function DistributorList() {
   const { data: distributors = [], isLoading } = useQuery<Distributor[]>({
@@ -51,6 +74,8 @@ export default function DistributorList() {
   const ITEMS_PER_PAGE = 10;
 
   const [selected, setSelected] = useState<Distributor | null>(null);
+  const [brandsPage, setBrandsPage] = useState(0);
+  const BRANDS_PER_PAGE = 10;
   const [distForm, setDistForm] = useState<Distributor | null>(null);
   const [editingDist, setEditingDist] = useState(false);
 
@@ -173,6 +198,7 @@ export default function DistributorList() {
                       setSelected(dist);
                       setDistForm(dist);
                       setEditingDist(false);
+                      setBrandsPage(0);
                     }}
                     className="cursor-pointer hover:bg-gray-50"
                   >
@@ -219,9 +245,17 @@ export default function DistributorList() {
           open={!!selected}
           onOpenChange={(open) => !open && setSelected(null)}
         >
-          <DialogContent className="max-w-4xl">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+            <VisuallyHidden>
+              <DialogTitle>{selected.name}</DialogTitle>
+            </VisuallyHidden>
+            <VisuallyHidden>
+              <DialogDescription>
+                View and edit distributor details and associated brands
+              </DialogDescription>
+            </VisuallyHidden>
+            <Card className="h-full flex flex-col">
+              <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
                 <CardTitle>{selected.name}</CardTitle>
                 <div className="flex gap-2">
                   <Button
@@ -246,8 +280,9 @@ export default function DistributorList() {
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <CardContent className="flex-1 overflow-auto">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label className="text-sm font-medium">Code</label>
                     <Input value={distForm.code} disabled readOnly />
@@ -435,27 +470,63 @@ export default function DistributorList() {
                   </div>
                 </div>
 
-                <div className="mt-6">
-                  <h3 className="text-md font-medium mb-2">Brands</h3>
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Code</TableHead>
-                          <TableHead>Name</TableHead>
-                          <TableHead>Store</TableHead>
-                          <TableHead>Active</TableHead>
-                          <TableHead className="w-16"></TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {brands
-                          .filter((b) => b.distributor_id === selected.id)
-                          .map((brand) => (
-                            <BrandRow key={brand.id} brand={brand} />
-                          ))}
-                      </TableBody>
-                    </Table>
+                  <div className="mt-6">
+                    <h3 className="text-md font-medium mb-2">
+                      Brands ({brands.filter((b) => b.distributor_id === selected.id).length})
+                    </h3>
+                    <div className="border rounded-md overflow-auto max-h-96">
+                      <Table>
+                        <TableHeader className="sticky top-0 bg-background z-10">
+                          <TableRow>
+                            <TableHead>Code</TableHead>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Store</TableHead>
+                            <TableHead>Active</TableHead>
+                            <TableHead className="w-16"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {brands
+                            .filter((b) => b.distributor_id === selected.id)
+                            .slice(brandsPage * BRANDS_PER_PAGE, (brandsPage + 1) * BRANDS_PER_PAGE)
+                            .map((brand) => (
+                              <BrandRow key={brand.id} brand={brand} />
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                    {(() => {
+                      const filteredBrands = brands.filter((b) => b.distributor_id === selected.id);
+                      const totalBrandsPages = Math.ceil(filteredBrands.length / BRANDS_PER_PAGE);
+                      return totalBrandsPages > 1 ? (
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="text-sm text-gray-500">
+                            Showing {brandsPage * BRANDS_PER_PAGE + 1} to {Math.min((brandsPage + 1) * BRANDS_PER_PAGE, filteredBrands.length)} of {filteredBrands.length} brands
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setBrandsPage(Math.max(0, brandsPage - 1))}
+                              disabled={brandsPage === 0}
+                            >
+                              Previous
+                            </Button>
+                            <span className="flex items-center px-3 text-sm">
+                              Page {brandsPage + 1} of {totalBrandsPages}
+                            </span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setBrandsPage(Math.min(totalBrandsPages - 1, brandsPage + 1))}
+                              disabled={brandsPage === totalBrandsPages - 1}
+                            >
+                              Next
+                            </Button>
+                          </div>
+                        </div>
+                      ) : null;
+                    })()}
                   </div>
                 </div>
               </CardContent>

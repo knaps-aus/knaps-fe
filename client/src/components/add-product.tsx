@@ -36,10 +36,6 @@ export default function AddProduct() {
       superceded_by: "",
       ean: "",
       pack_size: 1,
-      mwp: "",
-      trade: "",
-      go: "",
-      rrp: "",
       core_group: "",
       tax_exmt: false,
       hyperlink: "",
@@ -122,7 +118,7 @@ export default function AddProduct() {
                       <FormItem>
                         <FormLabel>Brand Name *</FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter brand name" {...field} />
+                          <Input placeholder="Enter brand name" {...field} value={field.value ?? ""} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -190,104 +186,7 @@ export default function AddProduct() {
                 </div>
               </div>
 
-              {/* Pricing Information */}
-              <div>
-                <h3 className="text-md font-medium text-gray-900 mb-4">Pricing Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="trade"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Trade Price *</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2 text-gray-500">$</span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
-                              className="pl-8"
-                              {...field}
-                              value={field.value ?? ""}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="rrp"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>RRP *</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2 text-gray-500">$</span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
-                              className="pl-8"
-                              {...field}
-                              value={field.value ?? ""}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="mwp"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>MWP</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2 text-gray-500">$</span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
-                              className="pl-8"
-                              {...field}
-                              value={field.value ?? ""}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="go"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>GO Price</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <span className="absolute left-3 top-2 text-gray-500">$</span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              placeholder="0.00"
-                              className="pl-8"
-                              {...field}
-                              value={field.value ?? ""}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </div>
+
 
               {/* Category & Classification */}
               <div>
@@ -492,7 +391,7 @@ export default function AddProduct() {
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                           <Checkbox
-                            checked={field.value}
+                            checked={field.value ?? false}
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
@@ -509,7 +408,7 @@ export default function AddProduct() {
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                           <Checkbox
-                            checked={field.value}
+                            checked={field.value ?? false}
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
@@ -526,7 +425,7 @@ export default function AddProduct() {
                       <FormItem className="flex flex-row items-start space-x-3 space-y-0">
                         <FormControl>
                           <Checkbox
-                            checked={field.value}
+                            checked={field.value ?? false}
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
