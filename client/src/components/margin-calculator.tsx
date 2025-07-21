@@ -27,106 +27,95 @@ export default function MarginCalculator({
   const [sellPriceExcl, setSellPriceExcl] = useState(0);
   const [sellPriceIncl, setSellPriceIncl] = useState(0);
   const [netCostExcl, setNetCostExcl] = useState(0);
+  const [netCostIncl, setNetCostIncl] = useState(0);
   const [grossMargin, setGrossMargin] = useState(0);
   const [markup, setMarkup] = useState(0);
   const [grossProfitExcl, setGrossProfitExcl] = useState(0);
 
+  const round = (n: number) => Math.round(n * 100) / 100;
+
   useEffect(() => {
-    const sell = parseFloat(sellPrice || '0');
-    const cost = parseFloat(costPrice || '0');
     const gstRate = parseFloat(taxRate || '0') / 100;
+    const sellIncl = parseFloat(sellPrice || '0') || 0;
+    const costIncl = parseFloat(costPrice || '0') || 0;
 
-    // Calculate values based on GST toggle
-    let sellExcl, sellIncl, costExcl;
+    const sellExcl = sellIncl / (1 + gstRate);
+    const costExcl = costIncl / (1 + gstRate);
+
+    setSellPriceIncl(round(sellIncl));
+    setSellPriceExcl(round(sellExcl));
+    setNetCostIncl(round(costIncl));
+    setNetCostExcl(round(costExcl));
+
+    const profit = sellExcl - costExcl;
+    const marginPct = sellExcl > 0 ? (profit / sellExcl) * 100 : 0;
+    const markupPct = costExcl > 0 ? (profit / costExcl) * 100 : 0;
+
+    setGrossProfitExcl(round(profit));
+    setGrossMargin(round(marginPct));
+    setMarkup(round(markupPct));
+  }, [sellPrice, costPrice, taxRate]);
+
+  const updateSellFromExcl = (sellExcl: number) => {
+    const gstRate = parseFloat(taxRate || '0') / 100;
+    setSellPriceExcl(round(sellExcl));
+    setSellPriceIncl(round(sellExcl * (1 + gstRate)));
+    onSellPriceChange((sellExcl * (1 + gstRate)).toFixed(2));
+  };
+
+  const handleSellPriceChange = (value: string) => {
+    const num = parseFloat(value || '0');
+    const gstRate = parseFloat(taxRate || '0') / 100;
     if (includeGST) {
-      sellIncl = sell;
-      sellExcl = sell / (1 + gstRate);
+      updateSellFromExcl(num / (1 + gstRate));
     } else {
-      sellExcl = sell;
-      sellIncl = sell * (1 + gstRate);
+      updateSellFromExcl(num);
     }
-    costExcl = includeGST ? (cost / (1 + gstRate)) : cost;
-
-    // Calculate derived values
-    const grossProfit = sellExcl - costExcl;
-    const grossMarginPercentage = sellExcl > 0 ? (grossProfit / sellExcl) * 100 : 0;
-    const markupPercentage = costExcl > 0 ? (grossProfit / costExcl) * 100 : 0;
-
-    setSellPriceExcl(Math.round(sellExcl * 100) / 100);
-    setSellPriceIncl(Math.round(sellIncl * 100) / 100);
-    setNetCostExcl(Math.round(costExcl * 100) / 100);
-    setGrossMargin(Math.round(grossMarginPercentage * 100) / 100);
-    setMarkup(Math.round(markupPercentage * 100) / 100);
-    setGrossProfitExcl(Math.round(grossProfit * 100) / 100);
-  }, [sellPrice, costPrice, taxRate, includeGST]);
-
-  // Handle changes for both inclusive and exclusive sell price
-  const handleSellPriceInclChange = (value: string) => {
-    const sellIncl = parseFloat(value || '0');
-    const gstRate = parseFloat(taxRate || '0') / 100;
-    let sellExcl = includeGST ? sellIncl / (1 + gstRate) : sellIncl;
-    setSellPriceIncl(sellIncl);
-    setSellPriceExcl(sellExcl);
-    onSellPriceChange(sellIncl.toFixed(2));
   };
 
-  const handleSellPriceExclChange = (value: string) => {
-    const sellExcl = parseFloat(value || '0');
+  const handleNetCostChange = (value: string) => {
+    const num = parseFloat(value || '0');
     const gstRate = parseFloat(taxRate || '0') / 100;
-    let sellIncl = includeGST ? sellExcl * (1 + gstRate) : sellExcl;
-    setSellPriceExcl(sellExcl);
-    setSellPriceIncl(sellIncl);
-    onSellPriceChange(sellIncl.toFixed(2));
-  };
-
-  const handleNetCostExclChange = (value: string) => {
-    const costExcl = parseFloat(value || '0');
-    const gstRate = parseFloat(taxRate || '0') / 100;
-    
     if (includeGST) {
-      // Convert exclusive to inclusive for display
-      const costIncl = costExcl * (1 + gstRate);
-      onCostPriceChange(costIncl.toFixed(2));
+      setNetCostIncl(round(num));
+      setNetCostExcl(round(num / (1 + gstRate)));
+      onCostPriceChange(num.toFixed(2));
     } else {
-      onCostPriceChange(costExcl.toFixed(2));
+      setNetCostExcl(round(num));
+      setNetCostIncl(round(num * (1 + gstRate)));
+      onCostPriceChange((num * (1 + gstRate)).toFixed(2));
     }
   };
 
   const handleGrossMarginChange = (value: string) => {
     const marginPercent = parseFloat(value || '0');
-    const costExcl = parseFloat(netCostExcl.toString());
-    
-    if (costExcl > 0 && marginPercent >= 0) {
-      const newSellPriceExcl = costExcl / (1 - marginPercent / 100);
-      handleSellPriceExclChange(newSellPriceExcl.toFixed(2));
+    if (netCostExcl > 0 && marginPercent >= 0) {
+      const newSellExcl = netCostExcl / (1 - marginPercent / 100);
+      updateSellFromExcl(newSellExcl);
     }
   };
 
   const handleMarkupChange = (value: string) => {
     const markupPercent = parseFloat(value || '0');
-    const costExcl = parseFloat(netCostExcl.toString());
-    
-    if (costExcl > 0 && markupPercent >= 0) {
-      const newSellPriceExcl = costExcl * (1 + markupPercent / 100);
-      handleSellPriceExclChange(newSellPriceExcl.toFixed(2));
+    if (netCostExcl > 0 && markupPercent >= 0) {
+      const newSellExcl = netCostExcl * (1 + markupPercent / 100);
+      updateSellFromExcl(newSellExcl);
     }
   };
 
   const handleGrossProfitChange = (value: string) => {
-    const profitAmount = parseFloat(value || '0');
-    const costExcl = parseFloat(netCostExcl.toString());
-    
-    if (costExcl >= 0) {
-      const newSellPriceExcl = costExcl + profitAmount;
-      handleSellPriceExclChange(newSellPriceExcl.toFixed(2));
-    }
+    const profitInput = parseFloat(value || '0');
+    const gstRate = parseFloat(taxRate || '0') / 100;
+    const profitExcl = includeGST ? profitInput / (1 + gstRate) : profitInput;
+    const newSellExcl = netCostExcl + profitExcl;
+    updateSellFromExcl(newSellExcl);
   };
 
   return (
     <Card className={className}>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{title}</CardTitle>
+          <CardTitle className="text-lg">{`${title} (${includeGST ? 'inc' : 'exc'})`}</CardTitle>
           <div className="flex items-center space-x-2">
             <Switch
               id="gst-toggle"
@@ -142,28 +131,14 @@ export default function MarginCalculator({
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="text-center">
-            <div className="text-sm font-medium mb-1">Sell Price (incl. GST)</div>
+            <div className="text-sm font-medium mb-1">Sell Price ({includeGST ? 'incl. GST' : 'excl. GST'})</div>
             <div className="relative">
               <span className="absolute left-2 top-1.5">$</span>
               <Input
                 type="number"
                 step="0.01"
-                value={sellPriceIncl}
-                onChange={(e) => handleSellPriceInclChange(e.target.value)}
-                className="pl-5 text-center"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-sm font-medium mb-1">Sell Price (excl. GST)</div>
-            <div className="relative">
-              <span className="absolute left-2 top-1.5">$</span>
-              <Input
-                type="number"
-                step="0.01"
-                value={sellPriceExcl}
-                onChange={(e) => handleSellPriceExclChange(e.target.value)}
+                value={includeGST ? sellPriceIncl : sellPriceExcl}
+                onChange={(e) => handleSellPriceChange(e.target.value)}
                 className="pl-5 text-center"
                 placeholder="0.00"
               />
@@ -176,8 +151,8 @@ export default function MarginCalculator({
               <Input
                 type="number"
                 step="0.01"
-                value={netCostExcl}
-                onChange={(e) => handleNetCostExclChange(e.target.value)}
+                value={includeGST ? netCostIncl : netCostExcl}
+                onChange={(e) => handleNetCostChange(e.target.value)}
                 className="pl-5 text-center"
                 placeholder="0.00"
               />
@@ -212,7 +187,7 @@ export default function MarginCalculator({
               <Input
                 type="number"
                 step="0.01"
-                value={grossProfitExcl}
+                value={includeGST ? round(grossProfitExcl * (1 + parseFloat(taxRate) / 100)) : grossProfitExcl}
                 onChange={(e) => handleGrossProfitChange(e.target.value)}
                 className="pl-5 text-center"
                 placeholder="0.00"

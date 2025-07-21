@@ -226,22 +226,24 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
       });
       setLatestPrices(Object.values(map));
 
-      // Get pricing values from product data and my_prices
-      const getPriceLevelValue = (lvl: string) => map[lvl]?.value_incl ?? '';
-      
-      // For Store pricing - use lower buy price from price_levels
-      const storeBuyPrice = getPriceLevelValue('Trade') ? 
-        (parseFloat(getPriceLevelValue('Trade')) * 1.1).toFixed(2) : ''; // Add 10% tax
-      
-      // For Store sell prices - use available values from my_prices
-      const storeSellPriceGO = product.my_price?.rrp || product.my_price?.go || product.my_price?.trade;
-      
-      const storeSellPriceGOWithTax = storeSellPriceGO ? 
-        (parseFloat(storeSellPriceGO) * 1.1).toFixed(2) : '';
+      const goPrice = parseFloat(product.my_price?.go ?? '0');
+      const rrpPrice = parseFloat(product.my_price?.rrp ?? '0');
+      const highestSell = Math.max(goPrice || 0, rrpPrice || 0);
 
-      setGoCalc({ 
-        sellPrice: storeSellPriceGOWithTax, 
-        costPrice: storeBuyPrice 
+      const invoicePrice = parseFloat(product.my_price?.invoice ?? '0');
+      const tradePrice = parseFloat(product.my_price?.trade ?? '0');
+      let lowestCost = Math.min(
+        invoicePrice || Infinity,
+        tradePrice || Infinity
+      );
+      if (!isFinite(lowestCost)) lowestCost = 0;
+
+      const storeSellPriceGOWithTax = highestSell > 0 ? (highestSell * 1.1).toFixed(2) : '';
+      const storeBuyPrice = lowestCost > 0 ? (lowestCost * 1.1).toFixed(2) : '';
+
+      setGoCalc({
+        sellPrice: storeSellPriceGOWithTax,
+        costPrice: storeBuyPrice
       });
 
     }
