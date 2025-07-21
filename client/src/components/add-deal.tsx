@@ -5,6 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import ProductSearchWithId from "@/components/product-search-with-id";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -119,10 +120,16 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                   name="product_id"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Product ID</FormLabel>
-                      <FormControl>
-                        <Input type="number" {...field} />
-                      </FormControl>
+                      <FormLabel>Product</FormLabel>
+                      {isEditing ? (
+                        <FormControl>
+                          <Input type="number" {...field} disabled />
+                        </FormControl>
+                      ) : (
+                        <ProductSearchWithId
+                          onSelectProduct={(product) => field.onChange(product.id)}
+                        />
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -178,7 +185,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -252,7 +264,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Store Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -265,7 +282,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Head Office Amount</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -278,7 +300,12 @@ export default function AddDeal({ deal, onClose }: AddDealProps) {
                     <FormItem>
                       <FormLabel>Trade Price</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" {...field} />
+                        <Input
+                          type="number"
+                          step="0.01"
+                          {...field}
+                          value={field.value ?? ""}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

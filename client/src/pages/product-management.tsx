@@ -7,22 +7,30 @@ import AddProduct from "@/components/add-product";
 import BulkUpload from "@/components/bulk-upload";
 import AddDeal from "@/components/add-deal";
 import BulkDealUpload from "@/components/bulk-deal-upload";
-import DealList from "@/components/deal-list";
+import DealsSearch from "@/components/deals-search";
+import DealsList from "@/components/deals-list";
 import Analytics from "@/components/analytics";
 import { Store, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import UserMenu from "@/components/user-menu";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Product } from "@shared/schema";
 
 export default function ProductManagement() {
   const [selectedProductCode, setSelectedProductCode] = useState<string | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [bulkOpen, setBulkOpen] = useState(false);
-  const [selectedDealProductId, setSelectedDealProductId] = useState<number | null>(null);
+  const [selectedDealProduct, setSelectedDealProduct] = useState<Product | null>(null);
+  const [dealSearchFilters, setDealSearchFilters] = useState<{
+    dealType?: number;
+    dealStatus?: string;
+    distributor?: string;
+    brand?: string;
+  } | null>(null);
   const [addDealOpen, setAddDealOpen] = useState(false);
   const [bulkDealOpen, setBulkDealOpen] = useState(false);
 
@@ -40,13 +48,7 @@ export default function ProductManagement() {
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5 text-gray-400" />
               </Button>
-              <div className="flex items-center space-x-2">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=32&h=32" />
-                  <AvatarFallback>JM</AvatarFallback>
-                </Avatar>
-                <span className="text-sm text-gray-700">John Manager</span>
-              </div>
+              <UserMenu />
             </div>
           </div>
         </div>
@@ -113,8 +115,17 @@ export default function ProductManagement() {
                 </TabsContent>
                 <TabsContent value="deals" className="mt-0 h-full">
                   <div className="flex flex-col items-center p-6">
-                    <div className="w-full max-w-lg mx-auto">
-                      <ProductSearch onSelectProduct={setSelectedDealProductId} />
+                    <div className="w-full max-w-4xl mx-auto">
+                      <DealsSearch
+                        onSelectProduct={(product: Product) => {
+                          setSelectedDealProduct(product);
+                          setDealSearchFilters(null);
+                        }}
+                        onAdvancedSearch={(filters) => {
+                          setDealSearchFilters(filters);
+                          setSelectedDealProduct(null);
+                        }}
+                      />
                     </div>
                     <div className="mt-4 flex gap-4">
                       <Dialog open={addDealOpen} onOpenChange={setAddDealOpen}>
@@ -135,7 +146,10 @@ export default function ProductManagement() {
                       </Dialog>
                     </div>
                     <div className="mt-6 w-full">
-                      <DealList productId={selectedDealProductId} />
+                      <DealsList 
+                        productId={selectedDealProduct?.id || null}
+                        searchFilters={dealSearchFilters || undefined}
+                      />
                     </div>
                   </div>
                 </TabsContent>

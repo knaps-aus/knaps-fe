@@ -6,24 +6,24 @@ import { Product } from "@shared/schema";
 import { API_BASE_URL } from "@/config";
 import { authHeaders } from "@/lib/auth";
 
-interface ProductSearchProps {
-  onSelectProduct: (productCode: string) => void;
+interface ProductSearchWithIdProps {
+  onSelectProduct: (product: Product) => void;
 }
 
-export default function ProductSearch({ onSelectProduct }: ProductSearchProps) {
+export default function ProductSearchWithId({ onSelectProduct }: ProductSearchWithIdProps) {
   const [query, setQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const { data: searchResults = [] } = useQuery<Product[]>({
-    queryKey: ['/products/search', query, selectedProduct?.id],
+    queryKey: ["/products/search", query, selectedProduct?.id],
     queryFn: async () => {
       if (query.length < 2 || selectedProduct) return [];
       const response = await fetch(
         `${API_BASE_URL}/products/search?q=${encodeURIComponent(query)}`,
         { headers: authHeaders() },
       );
-      if (!response.ok) throw new Error('Search failed');
+      if (!response.ok) throw new Error("Search failed");
       return response.json();
     },
     enabled: query.length >= 2,
@@ -34,7 +34,7 @@ export default function ProductSearch({ onSelectProduct }: ProductSearchProps) {
   }, [query, searchResults, selectedProduct]);
 
   const handleSelectProduct = (product: Product) => {
-    onSelectProduct(product.product_code);
+    onSelectProduct(product);
     setQuery(product.product_name);
     setSelectedProduct(product);
     setShowResults(false);
