@@ -190,8 +190,8 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
         title: 'Deleted',
         description: 'Product deleted successfully',
       });
-      // Optionally, clear the selected product if a callback is provided
-      // if (onProductDeleted) onProductDeleted();
+      // Reload the page after successful deletion
+      window.location.reload();
     },
     onError: () => {
       toast({
@@ -205,6 +205,13 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   useEffect(() => {
     if (product) {
       setFormData(product);
+
+      // Set selectedDistributor from product data if available
+      if (product.distributor_id && product.distributor_name) {
+        setSelectedDistributor({ id: product.distributor_id, name: product.distributor_name });
+      } else {
+        setSelectedDistributor(null);
+      }
 
       const map: Record<string, PriceLevel> = {};
       product.price_levels?.forEach((pl) => {
@@ -314,6 +321,19 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
     }
   }, [selectedCtcType]);
 
+  // When distributor changes, fetch brands
+  useEffect(() => {
+    if (selectedDistributor) {
+      loadBrandsForDistributor(selectedDistributor.id);
+      // Clear brand selection when distributor changes
+      setFormData(prev => prev ? { ...prev, brand_id: null, brand_name: '' } : null);
+    } else {
+      setBrandOptions([]);
+      setFormData(prev => prev ? { ...prev, brand_id: null, brand_name: '' } : null);
+    }
+  }, [selectedDistributor]);
+
+  // Handle conditional rendering in the return statement
   if (!productCode) {
     return (
       <div className="p-6 text-center">
@@ -334,7 +354,13 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
     );
   }
 
-  if (!formData) return null;
+  if (!formData) {
+    return (
+      <div className="p-6 text-center">
+        <p className="text-gray-500">Loading product details...</p>
+      </div>
+    );
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -344,8 +370,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
   const handleInputChange = (field: keyof Product, value: any) => {
     setFormData(prev => prev ? { ...prev, [field]: value } : null);
   };
-
-
 
   const handleAddPriceLevel = () => {
     createPriceLevelMutation.mutate(newPriceLevel);
@@ -401,19 +425,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
       setIsLoadingBrands(false);
     }
   };
-
-  // When distributor changes, fetch brands
-  useEffect(() => {
-    if (selectedDistributor) {
-      loadBrandsForDistributor(selectedDistributor.id);
-      // Clear brand selection when distributor changes
-      setFormData(prev => prev ? { ...prev, brand_id: null, brand_name: '' } : null);
-    } else {
-      setBrandOptions([]);
-      setFormData(prev => prev ? { ...prev, brand_id: null, brand_name: '' } : null);
-    }
-  }, [selectedDistributor]);
-
 
   const productAnalytics = analytics?.[0];
 
@@ -680,7 +691,9 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                   <div>
                     <Label htmlFor="ctc_class">CTC Class</Label>
                     {isEditing ? (
-                      <Select
+                      <AsyncSelect
+                        cacheOptions={false}
+                        defaultOptions={ctcClassOptions}
                         options={ctcClassOptions}
                         value={ctcClassOptions.find(c => c.value === formData.ctc_class_id) || null}
                         onChange={(option) => setSelectedCtcClass(option)}
@@ -699,12 +712,14 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                   <div>
                     <Label htmlFor="ctc_type">CTC Type</Label>
                     {isEditing ? (
-                      <Select
+                      <AsyncSelect
+                        cacheOptions={false}
+                        defaultOptions={ctcTypeOptions}
                         options={ctcTypeOptions}
                         value={ctcTypeOptions.find(t => t.value === formData.ctc_type_id) || null}
                         onChange={(option) => setSelectedCtcType(option)}
-                        isDisabled={!selectedCtcClass}
                         isClearable
+                        isDisabled={!selectedCtcClass}
                         placeholder={selectedCtcClass ? 'Select type' : 'Select class first'}
                         styles={selectStyles}
                       />
@@ -719,12 +734,14 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                   <div>
                     <Label htmlFor="ctc_category">CTC Category</Label>
                     {isEditing ? (
-                      <Select
+                      <AsyncSelect
+                        cacheOptions={false}
+                        defaultOptions={ctcCategoryOptions}
                         options={ctcCategoryOptions}
                         value={ctcCategoryOptions.find(cat => cat.value === formData.ctc_category_id) || null}
                         onChange={(option) => setFormData(prev => prev ? { ...prev, ctc_category_id: option ? option.value : null, ctc_category_name: option ? option.label : '' } : null)}
-                        isDisabled={!selectedCtcType}
                         isClearable
+                        isDisabled={!selectedCtcType}
                         placeholder={selectedCtcType ? 'Select category' : 'Select type first'}
                         styles={selectStyles}
                       />
@@ -735,79 +752,6 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                         disabled
                       />
                     )}
-                  </div>
-                  <div>
-                    <Label htmlFor="category_name">Category</Label>
-                    <Select
-                      value={formData.category_name || ''}
-                      onValueChange={(value) => handleInputChange('category_name', value)}
-                      disabled={!isEditing}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Television & Audio">Television & Audio</SelectItem>
-                        <SelectItem value="Home Appliances">Home Appliances</SelectItem>
-                        <SelectItem value="Mobile & Accessories">Mobile & Accessories</SelectItem>
-                        <SelectItem value="Computing">Computing</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="shipping_class">Shipping Class</Label>
-                    <Select
-                      value={formData.shipping_class || ''}
-                      onValueChange={(value) => handleInputChange('shipping_class', value)}
-                      disabled={!isEditing}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Large Items">Large Items</SelectItem>
-                        <SelectItem value="Standard">Standard</SelectItem>
-                        <SelectItem value="Express">Express</SelectItem>
-                        <SelectItem value="Fragile">Fragile</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="pack_size">Pack Size</Label>
-                    <Input
-                      id="pack_size"
-                      type="number"
-                      value={formData.pack_size || 1}
-                      onChange={(e) => handleInputChange('pack_size', parseInt(e.target.value))}
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="core_group">Core Group</Label>
-                    <Input
-                      id="core_group"
-                      value={formData.core_group || ''}
-                      onChange={(e) => handleInputChange('core_group', e.target.value)}
-                      disabled={!isEditing}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="product_availability">Availability Status</Label>
-                    <Select
-                      value={formData.product_availability || ''}
-                      onValueChange={(value) => handleInputChange('product_availability', value)}
-                      disabled={!isEditing}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="In Stock">In Stock</SelectItem>
-                        <SelectItem value="Low Stock">Low Stock</SelectItem>
-                        <SelectItem value="Out of Stock">Out of Stock</SelectItem>
-                        <SelectItem value="Discontinued">Discontinued</SelectItem>
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
 
