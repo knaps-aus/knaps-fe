@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 interface Product {
   id: number;
   brand_name?: string;
+  ctc_class_name?: string;
   product_name?: string;
   core_group?: string;
   rank?: number;
@@ -59,6 +60,7 @@ export default function ProductsTable({ products, loading, error }: ProductsTabl
           <TableRow>
             <TableHead>Product ID</TableHead>
             <TableHead>Brand</TableHead>
+            <TableHead>Class</TableHead>
             <TableHead>Product Name</TableHead>
             <TableHead>Core</TableHead>
             <TableHead>Rank</TableHead>
@@ -78,6 +80,7 @@ export default function ProductsTable({ products, loading, error }: ProductsTabl
             <TableRow key={p.id}>
               <TableCell>{p.id}</TableCell>
               <TableCell>{p.brand_name || ""}</TableCell>
+              <TableCell>{p.ctc_class_name || ""}</TableCell>
               <TableCell>{p.product_name || ""}</TableCell>
               <TableCell>
                 {p.core_group ? (

@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 interface Product {
   id: number;
   brand_name?: string;
+  ctc_class_name?: string;
   product_name?: string;
   core_group?: string;
   [key: string]: any;
@@ -44,7 +45,16 @@ export default function CoreRangeProducts() {
         "GET",
         `/products/core-range?${params.toString()}`,
       );
-      return res.json();
+      const data = await res.json();
+      return (data as any[]).map((p) => {
+        const go = p.price_levels?.find((pl: any) => pl.price_level === "GO");
+        return {
+          ...p,
+          go: go?.value_incl ?? go?.value_excl ?? p.go,
+        } as Product;
+      }).sort((a, b) =>
+        (a.ctc_class_name || "").localeCompare(b.ctc_class_name || "")
+      );
     },
     enabled: filters !== null,
   });
