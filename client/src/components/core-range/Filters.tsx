@@ -8,6 +8,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { apiRequest } from "@/lib/queryClient";
 import type { DistributorRead, BrandRead } from "@shared/schema";
 
@@ -24,6 +25,7 @@ export interface FilterValues {
   class_id?: number;
   type_id?: number;
   category_id?: number;
+  core_groups?: string[];
 }
 
 interface FiltersProps {
@@ -36,6 +38,18 @@ export default function Filters({ onSubmit }: FiltersProps) {
   const [classId, setClassId] = useState("");
   const [typeId, setTypeId] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [coreGroups, setCoreGroups] = useState<string[]>([]);
+
+  const allGroups = ["A", "B", "C", "D", "E"];
+
+  const toggleGroup = (g: string) => {
+    setCoreGroups((prev) =>
+      prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g],
+    );
+  };
+
+  const selectAll = () => setCoreGroups(allGroups);
+  const deselectAll = () => setCoreGroups([]);
 
   const { data: distributors = [] } = useQuery<DistributorRead[]>({
     queryKey: ["/distributors"],
@@ -84,6 +98,7 @@ export default function Filters({ onSubmit }: FiltersProps) {
     if (classId) values.class_id = Number(classId);
     if (typeId) values.type_id = Number(typeId);
     if (categoryId) values.category_id = Number(categoryId);
+    if (coreGroups.length) values.core_groups = coreGroups;
     onSubmit(values);
   };
 
@@ -153,6 +168,27 @@ export default function Filters({ onSubmit }: FiltersProps) {
           ))}
         </SelectContent>
       </Select>
+
+      <div className="md:col-span-5 flex items-center flex-wrap gap-4">
+        {allGroups.map((g) => (
+          <div key={g} className="flex items-center space-x-2">
+            <Checkbox
+              id={`core-${g}`}
+              checked={coreGroups.includes(g)}
+              onCheckedChange={() => toggleGroup(g)}
+            />
+            <label htmlFor={`core-${g}`} className="text-sm">
+              {g}
+            </label>
+          </div>
+        ))}
+        <Button variant="outline" size="sm" type="button" onClick={selectAll}>
+          Select All
+        </Button>
+        <Button variant="outline" size="sm" type="button" onClick={deselectAll}>
+          Deselect All
+        </Button>
+      </div>
 
       <div className="md:col-span-5 flex justify-end">
         <Button onClick={handleSubmit}>Submit</Button>

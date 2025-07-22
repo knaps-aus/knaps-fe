@@ -35,6 +35,8 @@ export default function CoreRangeProducts() {
       if (filters.type_id) params.append("type_id", String(filters.type_id));
       if (filters.category_id)
         params.append("category_id", String(filters.category_id));
+      if (filters.core_groups && filters.core_groups.length)
+        params.append("core_groups", filters.core_groups.join(","));
       const res = await apiRequest(
         "GET",
         `/products/core-range?${params.toString()}`,
