@@ -16,6 +16,7 @@ import {
   PriceLevel,
 } from "@shared/schema";
 import MarginCalculator from "@/components/margin-calculator";
+import ProductDeals from "@/components/product-deals";
 import {
   Table,
   TableBody,
@@ -540,23 +541,30 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
                   </div>
                   <div>
                     <Label htmlFor="brand_name">Brand Name</Label>
-                    {isEditing ? (
-                      <Select
-                        isDisabled={!selectedDistributor || isLoadingBrands}
-                        isLoading={isLoadingBrands}
-                        options={brandOptions}
-                        value={brandOptions.find(b => b.value === formData.brand_id) || null}
-                        onChange={(option: SingleValue<{ value: number; label: string }>) => {
-                          if (option) {
-                            setFormData(prev => prev ? { ...prev, brand_id: option.value, brand_name: option.label } : null);
-                          } else {
-                            setFormData(prev => prev ? { ...prev, brand_id: null, brand_name: '' } : null);
-                          }
-                        }}
-                        placeholder={selectedDistributor ? (isLoadingBrands ? 'Loading brands...' : 'Select brand') : 'Select distributor first'}
-                        isClearable
-                        styles={selectStyles}
-                      />
+                                          {isEditing ? (
+                        <Select
+                          value={formData.brand_id?.toString() || ''}
+                          onValueChange={(value) => {
+                            const brand = brandOptions.find(b => b.value.toString() === value);
+                            if (brand) {
+                              setFormData(prev => prev ? { ...prev, brand_id: brand.value, brand_name: brand.label } : null);
+                            } else {
+                              setFormData(prev => prev ? { ...prev, brand_id: null, brand_name: '' } : null);
+                            }
+                          }}
+                          disabled={!selectedDistributor || isLoadingBrands}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={selectedDistributor ? (isLoadingBrands ? 'Loading brands...' : 'Select brand') : 'Select distributor first'} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {brandOptions.map((brand) => (
+                              <SelectItem key={brand.value} value={brand.value.toString()}>
+                                {brand.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                     ) : (
                       <Input
                         id="brand_name"
@@ -1315,9 +1323,8 @@ export default function ProductDetails({ productCode }: ProductDetailsProps) {
           </CardContent>
         </Card>
 
-
-
-
+        {/* Product Deals Card */}
+        <ProductDeals product={product} />
 
         {/* Sales Performance Card */}
         {productAnalytics && (

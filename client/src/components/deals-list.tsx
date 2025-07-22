@@ -12,10 +12,19 @@ import { apiRequest } from "@/lib/queryClient";
 interface DealsListProps {
   productId?: number | null;
   searchFilters?: {
-    dealType?: number;
-    dealStatus?: string;
-    distributor?: string;
-    brand?: string;
+    brand_id?: number;
+    distributor_id?: number;
+    deal_type_id?: number;
+    status?: string;
+    agreement_type?: string;
+    deal_source_id?: number;
+    provider_code?: string;
+    store?: string;
+    product_class_id?: number;
+    product_type_id?: number;
+    product_category_id?: number;
+    valid_on_date?: string;
+    active_only?: boolean;
   };
 }
 
@@ -27,21 +36,30 @@ export default function DealsList({ productId, searchFilters }: DealsListProps) 
 
   const { data: deals = [], isLoading } = useQuery<Deal[]>({
     queryKey: isAdvancedSearch 
-      ? ['/deals/search', searchFilters]
+      ? ['/rebates/agreements/search', searchFilters]
       : ['/deals', productId],
     queryFn: async () => {
       if (isAdvancedSearch) {
-        // Build query parameters for advanced search
+        // Build query parameters for GET request
         const params = new URLSearchParams();
-        if (searchFilters?.dealType) params.append('deal_type', searchFilters.dealType.toString());
-        if (searchFilters?.dealStatus) params.append('status', searchFilters.dealStatus);
-        if (searchFilters?.distributor) params.append('distributor', searchFilters.distributor);
-        if (searchFilters?.brand) params.append('brand', searchFilters.brand);
+        if (searchFilters?.brand_id) params.append('brand_id', searchFilters.brand_id.toString());
+        if (searchFilters?.distributor_id) params.append('distributor_id', searchFilters.distributor_id.toString());
+        if (searchFilters?.deal_type_id) params.append('deal_type_id', searchFilters.deal_type_id.toString());
+        if (searchFilters?.status) params.append('status', searchFilters.status);
+        if (searchFilters?.agreement_type) params.append('agreement_type', searchFilters.agreement_type);
+        if (searchFilters?.deal_source_id) params.append('deal_source_id', searchFilters.deal_source_id.toString());
+        if (searchFilters?.provider_code) params.append('provider_code', searchFilters.provider_code);
+        if (searchFilters?.store) params.append('store', searchFilters.store);
+        if (searchFilters?.product_class_id) params.append('product_class_id', searchFilters.product_class_id.toString());
+        if (searchFilters?.product_type_id) params.append('product_type_id', searchFilters.product_type_id.toString());
+        if (searchFilters?.product_category_id) params.append('product_category_id', searchFilters.product_category_id.toString());
+        if (searchFilters?.valid_on_date) params.append('valid_on_date', searchFilters.valid_on_date);
+        if (searchFilters?.active_only !== undefined) params.append('active_only', searchFilters.active_only.toString());
         
-        const response = await apiRequest("GET", `/deals/search?${params.toString()}`);
+        const response = await apiRequest("GET", `/rebates/agreements/search?${params.toString()}`);
         return response.json();
       } else {
-        // Product-based search
+        // Product-based search (keep existing GET endpoint)
         if (!productId) return [];
         const response = await apiRequest("GET", `/deals?product_id=${productId}`);
         return response.json();

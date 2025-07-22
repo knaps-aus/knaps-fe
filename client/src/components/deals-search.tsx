@@ -8,10 +8,19 @@ import { Product } from "@shared/schema";
 interface DealsSearchProps {
   onSelectProduct: (product: Product) => void;
   onAdvancedSearch: (filters: {
-    dealType?: number;
-    dealStatus?: string;
-    distributor?: string;
-    brand?: string;
+    brand_id?: number;
+    distributor_id?: number;
+    deal_type_id?: number;
+    status?: string;
+    agreement_type?: string;
+    deal_source_id?: number;
+    provider_code?: string;
+    store?: string;
+    product_class_id?: number;
+    product_type_id?: number;
+    product_category_id?: number;
+    valid_on_date?: string;
+    active_only?: boolean;
   }) => void;
 }
 
@@ -23,10 +32,19 @@ export default function DealsSearch({ onSelectProduct, onAdvancedSearch }: Deals
   };
 
   const handleAdvancedSearch = (filters: {
-    dealType?: number;
-    dealStatus?: string;
-    distributor?: string;
-    brand?: string;
+    brand_id?: number;
+    distributor_id?: number;
+    deal_type_id?: number;
+    status?: string;
+    agreement_type?: string;
+    deal_source_id?: number;
+    provider_code?: string;
+    store?: string;
+    product_class_id?: number;
+    product_type_id?: number;
+    product_category_id?: number;
+    valid_on_date?: string;
+    active_only?: boolean;
   }) => {
     onAdvancedSearch(filters);
   };
