@@ -11,6 +11,9 @@ import { Button } from "@/components/ui/button";
 
 interface Product {
   id: number;
+  brand_name?: string;
+  product_name?: string;
+  core_group?: string;
   [key: string]: any;
 }
 
