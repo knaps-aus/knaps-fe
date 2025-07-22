@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import ProductManagement from "@/pages/product-management";
 import DistributorsPage from "@/pages/distributors";
 import CTCHierarchyPage from "@/pages/ctc-hierarchy";
+import CoreRangeProducts from "@/pages/core-range-products";
 import NotFound from "@/pages/not-found";
 import { keycloak, keycloakConfig } from "./keycloak";
 
@@ -18,6 +19,7 @@ function Router() {
       <Route path="/products" component={ProductManagement} />
       <Route path="/distributors" component={DistributorsPage} />
       <Route path="/ctc-hierarchy" component={CTCHierarchyPage} />
+      <Route path="/core-range-products" component={CoreRangeProducts} />
       <Route component={NotFound} />
     </Switch>
   );
