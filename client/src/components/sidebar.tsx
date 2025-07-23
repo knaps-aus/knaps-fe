@@ -10,7 +10,7 @@ const navigation = [
   { name: 'Sales Analytics', href: '#', icon: ChartLine },
   { name: 'Inventory', href: '#', icon: Warehouse },
   { name: 'Customers', href: '#', icon: Users },
-  { name: 'Settings', href: '#', icon: Settings },
+  { name: 'Settings', href: '/settings', icon: Settings },
 ];
 
 export default function Sidebar() {
